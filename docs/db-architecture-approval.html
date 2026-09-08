@@ -149,7 +149,7 @@ hr.rule{border:none;border-top:1px solid var(--line);margin:44px 0;}
     <li><a href="#twotier">2 — Two-tier rationale</a></li>
     <li><a href="#techchoices">3 — Technology choices</a></li>
     <li><a href="#schema">4 — Schema at a glance</a></li>
-    <li><a href="#openitems">5 — Confirmed decisions &amp; remaining item</a></li>
+    <li><a href="#openitems">5 — Confirmed decisions</a></li>
     <li><a href="#security">6 — Security &amp; integrity notes</a></li>
     <li><a href="#signoff">7 — Sign-off</a></li>
   </ol>
@@ -163,13 +163,13 @@ hr.rule{border:none;border-top:1px solid var(--line);margin:44px 0;}
         <h1 class="title">Database Architecture</h1>
         <p class="subtitle">SQLite (via Drift) + SQLCipher, two-tier core/business schema for the Accounting Management Software mockup — submitted for design sign-off before implementation freezes.</p>
       </div>
-      <span class="status-pill">3 of 4 confirmed</span>
+      <span class="status-pill" style="color:var(--good);background:var(--good-soft);border-color:var(--good);">4 of 4 confirmed</span>
     </div>
     <dl class="meta-grid">
       <div><dt>Prepared by</dt><dd>Engineering (Claude Code session)</dd></div>
       <div><dt>Date</dt><dd>5 Sep 2026</dd></div>
       <div><dt>Source design</dt><dd>Accounting_Software_Mock_design.pdf (8 screens)</dd></div>
-      <div><dt>Decision needed</dt><dd>1 remaining open item §5</dd></div>
+      <div><dt>Decision needed</dt><dd>None — all items resolved, §5</dd></div>
     </dl>
   </div>
 
@@ -177,7 +177,7 @@ hr.rule{border:none;border-top:1px solid var(--line);margin:44px 0;}
     <span class="num">00</span>
     <h2>Summary</h2>
     <p class="lead">What's being proposed, in one paragraph, before the detail.</p>
-    <p>The application keeps <strong>two kinds of SQLite database</strong>: one shared <code>core.db</code> holding the business registry, user directory and installation settings, and one <code>biz_&lt;id&gt;.db</code> per business holding that business's ledger, payroll, inventory, assets and reports — matching the mockup's Multi-Branch/Company screen, which states each business's data is "completely separate and isolated." Every table uses a Drift-generated schema over SQLite, encrypted at rest with SQLCipher. Fields and relationships below are cited against the specific mockup screen that shows them. Three items originally flagged for a decision have since been confirmed: the Accounts &amp; Finance and Asset &amp; Valuation schemas stand as designed, the <code>bank_reconciliations</code> table has been added to the schema (§4), and LAN mode's key-sharing requirement is confirmed in scope (its exact mechanism is a Phase 3 implementation detail, not a schema question). One item remains open in §5.</p>
+    <p>The application keeps <strong>two kinds of SQLite database</strong>: one shared <code>core.db</code> holding the business registry, user directory and installation settings, and one <code>biz_&lt;id&gt;.db</code> per business holding that business's ledger, payroll, inventory, assets and reports — matching the mockup's Multi-Branch/Company screen, which states each business's data is "completely separate and isolated." Every table uses a Drift-generated schema over SQLite, encrypted at rest with SQLCipher. Fields and relationships below are cited against the specific mockup screen that shows them. All four items originally flagged for a decision are now resolved: the Accounts &amp; Finance and Asset &amp; Valuation schemas stand as designed, the <code>bank_reconciliations</code> table has been added to the schema (§4), LAN mode's key-sharing requirement is confirmed in scope (its exact mechanism is a Phase 3 implementation detail, not a schema question), and the <code>audit_log</code> cross-file reference gap is fixed with a denormalized username snapshot. Detail on all four is in §5.</p>
   </section>
 
   <section id="diagram">
@@ -265,13 +265,13 @@ hr.rule{border:none;border-top:1px solid var(--line);margin:44px 0;}
         <!-- audit log -->
         <rect x="760" y="470" width="330" height="66" rx="10" fill="var(--surface-2)" stroke="currentColor" stroke-width="1"/>
         <text x="776" y="493" font-size="13" font-weight="600" fill="currentColor">audit_log</text>
-        <text x="776" y="510" font-size="10" fill="currentColor" opacity="0.7">occurred_at &#183; action &#183; module &#183; user_id</text>
+        <text x="776" y="510" font-size="10" fill="currentColor" opacity="0.7">occurred_at &#183; action &#183; module &#183; user_id + user_name</text>
 
         <!-- dashed cross-file reference -->
         <path d="M 925 470 L 925 158 L 780 158 L 780 118" fill="none" stroke="currentColor" stroke-width="1.3" stroke-dasharray="4 4" marker-end="url(#arrow)"/>
-        <text x="920" y="172" font-size="10" fill="var(--critical)" text-anchor="end">user_id &#8594; core.users &#8212; &#167;5 (no FK across files)</text>
+        <text x="920" y="172" font-size="10" fill="var(--good)" text-anchor="end">user_id &#8594; core.users &#8212; fixed, &#167;5</text>
       </svg>
-      <figcaption>One <code>core.db</code> is always open; selecting a business opens that business's own SQLCipher-encrypted file. Inside it, every write-heavy module funnels into one <code>transactions</code> ledger table. All modules shown are confirmed. <code>audit_log.user_id</code> is the one reference that crosses the file boundary, which SQLite cannot enforce as a foreign key — the one remaining open item, flagged in §5.</figcaption>
+      <figcaption>One <code>core.db</code> is always open; selecting a business opens that business's own SQLCipher-encrypted file. Inside it, every write-heavy module funnels into one <code>transactions</code> ledger table. All modules shown are confirmed. <code>audit_log.user_id</code> is the one reference that crosses the file boundary, which SQLite cannot enforce as a foreign key — fixed with a denormalized <code>user_name</code> snapshot rather than relying on the cross-file link, detailed in §5.</figcaption>
     </figure>
   </section>
 
@@ -389,7 +389,7 @@ hr.rule{border:none;border-top:1px solid var(--line);margin:44px 0;}
     <div class="module-block">
       <div class="module-head"><h3>Audit</h3><span class="evidence">✓ page 8</span></div>
       <div class="table-list">
-        <div class="table-row"><span class="tname">audit_log</span><span class="tdesc">Activity Log (Latest) — scoped to the open business</span></div>
+        <div class="table-row"><span class="tname">audit_log</span><span class="tdesc">Activity Log (Latest) — scoped to the open business; carries a user_name snapshot alongside user_id</span></div>
       </div>
     </div>
   </section>
@@ -398,8 +398,8 @@ hr.rule{border:none;border-top:1px solid var(--line);margin:44px 0;}
 
   <section id="openitems">
     <span class="num">05</span>
-    <h2>Confirmed decisions, and what's still open</h2>
-    <p class="lead">Four points originally needed a call the mockup and architecture deck didn't fully settle. Three are now confirmed; one remains open.</p>
+    <h2>Confirmed decisions — all four resolved</h2>
+    <p class="lead">Four points originally needed a call the mockup and architecture deck didn't fully settle. All four are now confirmed or fixed.</p>
 
     <div class="confirmed-item">
       <div class="oi-head"><strong>Bank Reconciliation now has a backing table</strong><span class="oi-tag">Confirmed</span></div>
@@ -416,10 +416,9 @@ hr.rule{border:none;border-top:1px solid var(--line);margin:44px 0;}
       <p>The First-Run Setup screen's recommended "Local network (LAN)" mode means other devices connect to the host's live database, so the encryption key has to reach every connecting client, not only the device holding the file. This need is confirmed as in-scope; the specific key-sharing mechanism (e.g. a per-install key exchanged at first-run pairing, vs. a per-user key wrapping the database key) is a Phase 3 implementation detail to be designed when LAN mode is built, not a schema question blocking this approval.</p>
     </div>
 
-    <div class="open-item">
-      <div class="oi-head"><strong>Cross-file references aren't enforced</strong><span class="oi-tag">audit_log.user_id</span></div>
-      <p><code>audit_log.user_id</code> (and any "created/modified by" column in a business file) points at a row in <code>core.db</code>'s <code>users</code> table — a different SQLite file. SQLite has no mechanism to enforce a foreign key across two separate database files, so this integrity is an application-code guarantee only; a bug could silently write an audit row for a user id that no longer exists.</p>
-      <p class="rec"><strong>Recommendation:</strong> accept this as a documented, tested application-level invariant, or duplicate a minimal user snapshot (id + username) into each business file at write time so the record is self-contained.</p>
+    <div class="confirmed-item">
+      <div class="oi-head"><strong>Cross-file reference gap — fixed</strong><span class="oi-tag">Fixed</span></div>
+      <p><code>audit_log.user_id</code> points at a row in <code>core.db</code>'s <code>users</code> table — a different SQLite file, so SQLite has no mechanism to enforce that as a foreign key. Fix: <code>audit_log.user_name</code> is a denormalized snapshot of the username, captured by the caller at write time and never looked up later, so the row stays self-contained and readable even if the referenced user is later renamed or removed from <code>core.db</code>. Every write path must resolve and pass the current username alongside the id — documented on the <code>AuditLog</code> table in <code>business_database.dart</code>.</p>
     </div>
   </section>
 
@@ -438,7 +437,7 @@ hr.rule{border:none;border-top:1px solid var(--line);margin:44px 0;}
     <span class="num">07</span>
     <h2>Sign-off</h2>
     <div class="signoff">
-      <p style="margin:0;">Approving this document confirms the two-tier <code>core.db</code> / <code>biz_&lt;id&gt;.db</code> shape and the table list in §4 (including the three items already confirmed in §5), and records a decision on the one remaining open item in §5 (or defers it explicitly, with an owner and date).</p>
+      <p style="margin:0;">Approving this document confirms the two-tier <code>core.db</code> / <code>biz_&lt;id&gt;.db</code> shape, the table list in §4, and all four items resolved in §5.</p>
       <div class="signoff-grid">
         <div class="sign-line">Approved by — name, role</div>
         <div class="sign-line">Date</div>

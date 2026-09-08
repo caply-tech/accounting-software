@@ -400,10 +400,19 @@ class GeneratedReports extends Table {
 // Audit (scoped to this business — see docs/database-architecture.md)
 // ---------------------------------------------------------------------------
 
+/// `userId` points at a row in core.db's `users` table — a different SQLite
+/// file, so SQLite cannot enforce that reference as a foreign key. Fix:
+/// `userName` is a denormalized snapshot of that user's username, captured
+/// by the caller at write time (never looked up later), so this row stays
+/// self-contained and readable even if the referenced user is later
+/// renamed or removed from core.db. Every write path MUST resolve and pass
+/// the current username alongside the id — see docs/database-architecture.md
+/// "Cross-file references aren't enforced" for the full rationale.
 class AuditLog extends Table {
   TextColumn get id => text()();
   DateTimeColumn get occurredAt => dateTime()();
   TextColumn get userId => text()();
+  TextColumn get userName => text()();
   TextColumn get action => text()();
   TextColumn get module => text()();
   TextColumn get status => text()();

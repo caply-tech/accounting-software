@@ -11244,6 +11244,12 @@ class $AuditLogTable extends AuditLog
   late final GeneratedColumn<String> userId = GeneratedColumn<String>(
       'user_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _userNameMeta =
+      const VerificationMeta('userName');
+  @override
+  late final GeneratedColumn<String> userName = GeneratedColumn<String>(
+      'user_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _actionMeta = const VerificationMeta('action');
   @override
   late final GeneratedColumn<String> action = GeneratedColumn<String>(
@@ -11267,7 +11273,7 @@ class $AuditLogTable extends AuditLog
       type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, occurredAt, userId, action, module, status, detailsJson];
+      [id, occurredAt, userId, userName, action, module, status, detailsJson];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -11296,6 +11302,12 @@ class $AuditLogTable extends AuditLog
           userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
     } else if (isInserting) {
       context.missing(_userIdMeta);
+    }
+    if (data.containsKey('user_name')) {
+      context.handle(_userNameMeta,
+          userName.isAcceptableOrUnknown(data['user_name']!, _userNameMeta));
+    } else if (isInserting) {
+      context.missing(_userNameMeta);
     }
     if (data.containsKey('action')) {
       context.handle(_actionMeta,
@@ -11336,6 +11348,8 @@ class $AuditLogTable extends AuditLog
           .read(DriftSqlType.dateTime, data['${effectivePrefix}occurred_at'])!,
       userId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
+      userName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_name'])!,
       action: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}action'])!,
       module: attachedDatabase.typeMapping
@@ -11357,6 +11371,7 @@ class AuditLogData extends DataClass implements Insertable<AuditLogData> {
   final String id;
   final DateTime occurredAt;
   final String userId;
+  final String userName;
   final String action;
   final String module;
   final String status;
@@ -11365,6 +11380,7 @@ class AuditLogData extends DataClass implements Insertable<AuditLogData> {
       {required this.id,
       required this.occurredAt,
       required this.userId,
+      required this.userName,
       required this.action,
       required this.module,
       required this.status,
@@ -11375,6 +11391,7 @@ class AuditLogData extends DataClass implements Insertable<AuditLogData> {
     map['id'] = Variable<String>(id);
     map['occurred_at'] = Variable<DateTime>(occurredAt);
     map['user_id'] = Variable<String>(userId);
+    map['user_name'] = Variable<String>(userName);
     map['action'] = Variable<String>(action);
     map['module'] = Variable<String>(module);
     map['status'] = Variable<String>(status);
@@ -11389,6 +11406,7 @@ class AuditLogData extends DataClass implements Insertable<AuditLogData> {
       id: Value(id),
       occurredAt: Value(occurredAt),
       userId: Value(userId),
+      userName: Value(userName),
       action: Value(action),
       module: Value(module),
       status: Value(status),
@@ -11405,6 +11423,7 @@ class AuditLogData extends DataClass implements Insertable<AuditLogData> {
       id: serializer.fromJson<String>(json['id']),
       occurredAt: serializer.fromJson<DateTime>(json['occurredAt']),
       userId: serializer.fromJson<String>(json['userId']),
+      userName: serializer.fromJson<String>(json['userName']),
       action: serializer.fromJson<String>(json['action']),
       module: serializer.fromJson<String>(json['module']),
       status: serializer.fromJson<String>(json['status']),
@@ -11418,6 +11437,7 @@ class AuditLogData extends DataClass implements Insertable<AuditLogData> {
       'id': serializer.toJson<String>(id),
       'occurredAt': serializer.toJson<DateTime>(occurredAt),
       'userId': serializer.toJson<String>(userId),
+      'userName': serializer.toJson<String>(userName),
       'action': serializer.toJson<String>(action),
       'module': serializer.toJson<String>(module),
       'status': serializer.toJson<String>(status),
@@ -11429,6 +11449,7 @@ class AuditLogData extends DataClass implements Insertable<AuditLogData> {
           {String? id,
           DateTime? occurredAt,
           String? userId,
+          String? userName,
           String? action,
           String? module,
           String? status,
@@ -11437,6 +11458,7 @@ class AuditLogData extends DataClass implements Insertable<AuditLogData> {
         id: id ?? this.id,
         occurredAt: occurredAt ?? this.occurredAt,
         userId: userId ?? this.userId,
+        userName: userName ?? this.userName,
         action: action ?? this.action,
         module: module ?? this.module,
         status: status ?? this.status,
@@ -11448,6 +11470,7 @@ class AuditLogData extends DataClass implements Insertable<AuditLogData> {
       occurredAt:
           data.occurredAt.present ? data.occurredAt.value : this.occurredAt,
       userId: data.userId.present ? data.userId.value : this.userId,
+      userName: data.userName.present ? data.userName.value : this.userName,
       action: data.action.present ? data.action.value : this.action,
       module: data.module.present ? data.module.value : this.module,
       status: data.status.present ? data.status.value : this.status,
@@ -11462,6 +11485,7 @@ class AuditLogData extends DataClass implements Insertable<AuditLogData> {
           ..write('id: $id, ')
           ..write('occurredAt: $occurredAt, ')
           ..write('userId: $userId, ')
+          ..write('userName: $userName, ')
           ..write('action: $action, ')
           ..write('module: $module, ')
           ..write('status: $status, ')
@@ -11471,8 +11495,8 @@ class AuditLogData extends DataClass implements Insertable<AuditLogData> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, occurredAt, userId, action, module, status, detailsJson);
+  int get hashCode => Object.hash(
+      id, occurredAt, userId, userName, action, module, status, detailsJson);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -11480,6 +11504,7 @@ class AuditLogData extends DataClass implements Insertable<AuditLogData> {
           other.id == this.id &&
           other.occurredAt == this.occurredAt &&
           other.userId == this.userId &&
+          other.userName == this.userName &&
           other.action == this.action &&
           other.module == this.module &&
           other.status == this.status &&
@@ -11490,6 +11515,7 @@ class AuditLogCompanion extends UpdateCompanion<AuditLogData> {
   final Value<String> id;
   final Value<DateTime> occurredAt;
   final Value<String> userId;
+  final Value<String> userName;
   final Value<String> action;
   final Value<String> module;
   final Value<String> status;
@@ -11499,6 +11525,7 @@ class AuditLogCompanion extends UpdateCompanion<AuditLogData> {
     this.id = const Value.absent(),
     this.occurredAt = const Value.absent(),
     this.userId = const Value.absent(),
+    this.userName = const Value.absent(),
     this.action = const Value.absent(),
     this.module = const Value.absent(),
     this.status = const Value.absent(),
@@ -11509,6 +11536,7 @@ class AuditLogCompanion extends UpdateCompanion<AuditLogData> {
     required String id,
     required DateTime occurredAt,
     required String userId,
+    required String userName,
     required String action,
     required String module,
     required String status,
@@ -11517,6 +11545,7 @@ class AuditLogCompanion extends UpdateCompanion<AuditLogData> {
   })  : id = Value(id),
         occurredAt = Value(occurredAt),
         userId = Value(userId),
+        userName = Value(userName),
         action = Value(action),
         module = Value(module),
         status = Value(status);
@@ -11524,6 +11553,7 @@ class AuditLogCompanion extends UpdateCompanion<AuditLogData> {
     Expression<String>? id,
     Expression<DateTime>? occurredAt,
     Expression<String>? userId,
+    Expression<String>? userName,
     Expression<String>? action,
     Expression<String>? module,
     Expression<String>? status,
@@ -11534,6 +11564,7 @@ class AuditLogCompanion extends UpdateCompanion<AuditLogData> {
       if (id != null) 'id': id,
       if (occurredAt != null) 'occurred_at': occurredAt,
       if (userId != null) 'user_id': userId,
+      if (userName != null) 'user_name': userName,
       if (action != null) 'action': action,
       if (module != null) 'module': module,
       if (status != null) 'status': status,
@@ -11546,6 +11577,7 @@ class AuditLogCompanion extends UpdateCompanion<AuditLogData> {
       {Value<String>? id,
       Value<DateTime>? occurredAt,
       Value<String>? userId,
+      Value<String>? userName,
       Value<String>? action,
       Value<String>? module,
       Value<String>? status,
@@ -11555,6 +11587,7 @@ class AuditLogCompanion extends UpdateCompanion<AuditLogData> {
       id: id ?? this.id,
       occurredAt: occurredAt ?? this.occurredAt,
       userId: userId ?? this.userId,
+      userName: userName ?? this.userName,
       action: action ?? this.action,
       module: module ?? this.module,
       status: status ?? this.status,
@@ -11574,6 +11607,9 @@ class AuditLogCompanion extends UpdateCompanion<AuditLogData> {
     }
     if (userId.present) {
       map['user_id'] = Variable<String>(userId.value);
+    }
+    if (userName.present) {
+      map['user_name'] = Variable<String>(userName.value);
     }
     if (action.present) {
       map['action'] = Variable<String>(action.value);
@@ -11599,6 +11635,7 @@ class AuditLogCompanion extends UpdateCompanion<AuditLogData> {
           ..write('id: $id, ')
           ..write('occurredAt: $occurredAt, ')
           ..write('userId: $userId, ')
+          ..write('userName: $userName, ')
           ..write('action: $action, ')
           ..write('module: $module, ')
           ..write('status: $status, ')
@@ -17424,6 +17461,7 @@ typedef $$AuditLogTableCreateCompanionBuilder = AuditLogCompanion Function({
   required String id,
   required DateTime occurredAt,
   required String userId,
+  required String userName,
   required String action,
   required String module,
   required String status,
@@ -17434,6 +17472,7 @@ typedef $$AuditLogTableUpdateCompanionBuilder = AuditLogCompanion Function({
   Value<String> id,
   Value<DateTime> occurredAt,
   Value<String> userId,
+  Value<String> userName,
   Value<String> action,
   Value<String> module,
   Value<String> status,
@@ -17458,6 +17497,9 @@ class $$AuditLogTableFilterComposer
 
   ColumnFilters<String> get userId => $composableBuilder(
       column: $table.userId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get userName => $composableBuilder(
+      column: $table.userName, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get action => $composableBuilder(
       column: $table.action, builder: (column) => ColumnFilters(column));
@@ -17490,6 +17532,9 @@ class $$AuditLogTableOrderingComposer
   ColumnOrderings<String> get userId => $composableBuilder(
       column: $table.userId, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get userName => $composableBuilder(
+      column: $table.userName, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get action => $composableBuilder(
       column: $table.action, builder: (column) => ColumnOrderings(column));
 
@@ -17520,6 +17565,9 @@ class $$AuditLogTableAnnotationComposer
 
   GeneratedColumn<String> get userId =>
       $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<String> get userName =>
+      $composableBuilder(column: $table.userName, builder: (column) => column);
 
   GeneratedColumn<String> get action =>
       $composableBuilder(column: $table.action, builder: (column) => column);
@@ -17563,6 +17611,7 @@ class $$AuditLogTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<DateTime> occurredAt = const Value.absent(),
             Value<String> userId = const Value.absent(),
+            Value<String> userName = const Value.absent(),
             Value<String> action = const Value.absent(),
             Value<String> module = const Value.absent(),
             Value<String> status = const Value.absent(),
@@ -17573,6 +17622,7 @@ class $$AuditLogTableTableManager extends RootTableManager<
             id: id,
             occurredAt: occurredAt,
             userId: userId,
+            userName: userName,
             action: action,
             module: module,
             status: status,
@@ -17583,6 +17633,7 @@ class $$AuditLogTableTableManager extends RootTableManager<
             required String id,
             required DateTime occurredAt,
             required String userId,
+            required String userName,
             required String action,
             required String module,
             required String status,
@@ -17593,6 +17644,7 @@ class $$AuditLogTableTableManager extends RootTableManager<
             id: id,
             occurredAt: occurredAt,
             userId: userId,
+            userName: userName,
             action: action,
             module: module,
             status: status,

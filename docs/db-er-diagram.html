@@ -423,7 +423,7 @@ p.cluster-note{font-size:12.5px;color:var(--ink-soft);margin:0 0 16px;}
         <svg viewBox="0 0 560 300" role="img" aria-label="Reports and Audit diagram: generated_reports references report_templates. audit_log is a separate box with a dashed unenforced arrow pointing to a tag representing core.db's users table, since SQLite cannot check a foreign key across two separate files.">
           <defs>
             <marker id="ar7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
-            <marker id="ar7c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--critical)"/></marker>
+            <marker id="ar7c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--good)"/></marker>
           </defs>
           <line x1="150" y1="150" x2="150" y2="92" stroke="var(--ink-soft)" stroke-width="1.2" marker-end="url(#ar7)"/>
           <text x="160" y="125" font-family="Courier New, monospace" font-size="10" fill="var(--ink-soft)">template_id, null</text>
@@ -436,20 +436,21 @@ p.cluster-note{font-size:12.5px;color:var(--ink-soft);margin:0 0 16px;}
           <text x="66" y="172" font-family="Courier New, monospace" font-weight="bold" font-size="11.5" fill="var(--ink)">generated_reports</text>
           <text x="66" y="190" font-size="9.5" fill="var(--ink-soft)">metadata only, file on disk</text>
 
-          <rect x="60" y="235" width="220" height="56" rx="7" fill="var(--box)" stroke="var(--critical)" stroke-width="1.3"/>
-          <text x="76" y="257" font-family="Courier New, monospace" font-weight="bold" font-size="12" fill="var(--ink)">audit_log</text>
-          <text x="76" y="275" font-size="9.5" fill="var(--ink-soft)">who did what, this business</text>
+          <rect x="60" y="235" width="220" height="56" rx="7" fill="var(--box)" stroke="var(--good)" stroke-width="1.3"/>
+          <text x="76" y="253" font-family="Courier New, monospace" font-weight="bold" font-size="12" fill="var(--ink)">audit_log</text>
+          <text x="76" y="269" font-size="9" fill="var(--ink-soft)">who did what, this business</text>
+          <text x="76" y="283" font-size="9" fill="var(--good)">+ user_name snapshot, see below</text>
 
           <!-- separate tag, well clear of report_templates, so the dashed arrow can't be misread as pointing at it -->
-          <rect x="340" y="30" width="180" height="50" rx="6" fill="var(--critical-soft)" stroke="var(--critical)" stroke-width="1.2" stroke-dasharray="3 3"/>
-          <text x="356" y="50" font-family="Courier New, monospace" font-weight="bold" font-size="11.5" fill="var(--critical)">core.db &middot; users</text>
-          <text x="356" y="67" font-size="9.5" fill="var(--critical)">a different file</text>
+          <rect x="340" y="30" width="180" height="50" rx="6" fill="var(--good-soft)" stroke="var(--good)" stroke-width="1.2" stroke-dasharray="3 3"/>
+          <text x="356" y="50" font-family="Courier New, monospace" font-weight="bold" font-size="11.5" fill="var(--good)">core.db &middot; users</text>
+          <text x="356" y="67" font-size="9.5" fill="var(--good)">a different file</text>
 
-          <path d="M 280 263 L 430 263 L 430 82" fill="none" stroke="var(--critical)" stroke-width="1.3" stroke-dasharray="4 4" marker-end="url(#ar7c)"/>
+          <path d="M 280 263 L 430 263 L 430 82" fill="none" stroke="var(--good)" stroke-width="1.3" stroke-dasharray="4 4" marker-end="url(#ar7c)"/>
           <rect x="330" y="180" width="72" height="14" fill="var(--surface)"/>
-          <text x="332" y="191" font-family="Courier New, monospace" font-size="9.5" fill="var(--critical)">user_id</text>
+          <text x="332" y="191" font-family="Courier New, monospace" font-size="9.5" fill="var(--good)">user_id</text>
         </svg>
-        <figcaption>The dashed red arrow crosses a file boundary SQLite can't check &mdash; flagged as open item 5.3 in the approval request.</figcaption>
+        <figcaption>The dashed arrow still crosses a file boundary SQLite can't check as a foreign key &mdash; fixed by having <code class="et">audit_log</code> also store <code class="et">user_name</code>, a snapshot taken at write time, so the row never depends on that cross-file link to stay readable.</figcaption>
       </figure>
     </div>
   </div>

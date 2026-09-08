@@ -215,7 +215,7 @@ Cross-business "Recent Notifications" feed on the Dashboard.
 
 ### Audit
 
-**`audit_log`** — id, occurred_at, user_id FK → core `users.id`, action, module, status, details_json. Scoped per business (matches the mockup: the Activity Log on the Security & Admin screen has no Business column because it's implicitly the currently-selected business's log).
+**`audit_log`** — id, occurred_at, user_id FK → core `users.id`, user_name, action, module, status, details_json. Scoped per business (matches the mockup: the Activity Log on the Security & Admin screen has no Business column because it's implicitly the currently-selected business's log). `user_name` is a denormalized snapshot of the username at write time — fixes the cross-file reference gap below by keeping the row self-contained; every write path must resolve and pass it alongside `user_id`, never look it up later.
 
 ---
 
