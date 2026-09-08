@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Database Architecture Approval</title>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#ffffff;
+  --surface:#f6f7fa;
+  --surface-2:#edeff4;
+  --ink:#172142;
+  --ink-soft:#5b6478;
+  --line:#e1e4ec;
+  --accent:#ea6a1e;
+  --accent-soft:#fceade;
+  --good:#1e8e5a;
+  --good-soft:#e4f5ec;
+  --warn:#b8790a;
+  --warn-soft:#fbf0dc;
+  --critical:#c43d2e;
+  --critical-soft:#fbe7e3;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10141f;
+    --surface:#171c2b;
+    --surface-2:#1e2436;
+    --ink:#eceef5;
+    --ink-soft:#9aa2b8;
+    --line:#2a3145;
+    --accent:#ff8a47;
+    --accent-soft:#3a2415;
+    --good:#4fcb8d;
+    --good-soft:#123423;
+    --warn:#e3b155;
+    --warn-soft:#3a2c10;
+    --critical:#f0776a;
+    --critical-soft:#3a1917;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10141f;
+  --surface:#171c2b;
+  --surface-2:#1e2436;
+  --ink:#eceef5;
+  --ink-soft:#9aa2b8;
+  --line:#2a3145;
+  --accent:#ff8a47;
+  --accent-soft:#3a2415;
+  --good:#4fcb8d;
+  --good-soft:#123423;
+  --warn:#e3b155;
+  --warn-soft:#3a2c10;
+  --critical:#f0776a;
+  --critical-soft:#3a1917;
+}
+
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans',-apple-system,Segoe UI,sans-serif;line-height:1.6;}
+::selection{background:var(--accent);color:#fff;}
+h1,h2,h3{font-family:'Source Serif 4',Georgia,serif;color:var(--ink);text-wrap:balance;line-height:1.2;}
+
+.layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:44px;max-width:1180px;margin:0 auto;padding:48px 24px 120px;}
+@media (max-width:880px){.layout{grid-template-columns:1fr;}nav.toc{display:none;}}
+
+nav.toc{position:sticky;top:28px;align-self:start;font-family:'IBM Plex Mono',monospace;font-size:12px;}
+nav.toc .eyebrow{text-transform:uppercase;letter-spacing:.09em;color:var(--ink-soft);font-size:10.5px;margin-bottom:12px;}
+nav.toc ol{list-style:none;margin:0;padding:0;border-left:1px solid var(--line);}
+nav.toc a{display:block;padding:6px 0 6px 15px;color:var(--ink-soft);text-decoration:none;border-left:2px solid transparent;margin-left:-1px;}
+nav.toc a:hover,nav.toc a:focus-visible{color:var(--accent);border-left-color:var(--accent);}
+
+main{min-width:0;}
+
+.cover{border:1px solid var(--line);border-radius:6px;background:var(--surface);padding:28px 30px;margin:0 0 40px;}
+.cover-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-bottom:18px;}
+.status-pill{font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--warn);background:var(--warn-soft);border:1px solid var(--warn);padding:5px 11px;border-radius:20px;white-space:nowrap;}
+h1.title{font-size:clamp(26px,3.6vw,36px);margin:0 0 6px;font-weight:700;}
+p.subtitle{color:var(--ink-soft);font-size:15.5px;margin:0;max-width:60ch;}
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;border-top:1px solid var(--line);padding-top:16px;font-size:13.5px;}
+.meta-grid dt{font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin-bottom:3px;}
+.meta-grid dd{margin:0;font-weight:600;}
+
+.kicker{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 12px;}
+
+section{margin-bottom:52px;scroll-margin-top:28px;}
+section>.num{font-family:'IBM Plex Mono',monospace;color:var(--accent);font-size:12.5px;display:block;margin-bottom:6px;}
+h2{font-size:22px;margin:0 0 4px;font-weight:700;}
+h2+p.lead{color:var(--ink-soft);max-width:68ch;margin:0 0 20px;font-size:15px;}
+h3{font-size:16px;margin:26px 0 8px;font-family:'IBM Plex Sans';font-weight:700;}
+p{max-width:70ch;margin:0 0 13px;font-size:14.5px;}
+ul{max-width:70ch;padding-left:20px;margin:0 0 14px;font-size:14.5px;}
+li{margin-bottom:5px;}
+code{font-family:'IBM Plex Mono',monospace;font-size:.9em;background:var(--surface-2);padding:1px 5px;border-radius:3px;}
+
+figure{margin:0 0 36px;}
+figure svg{max-width:100%;height:auto;display:block;background:var(--surface);border:1px solid var(--line);border-radius:8px;}
+figcaption{font-size:13px;color:var(--ink-soft);margin-top:10px;max-width:70ch;}
+
+.evidence{display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--good);background:var(--good-soft);border:1px solid var(--good);padding:2px 8px;border-radius:20px;white-space:nowrap;}
+.evidence.inferred{color:var(--warn);background:var(--warn-soft);border-color:var(--warn);}
+
+.confirmed-item{border:1px solid var(--line);border-left:3px solid var(--good);border-radius:0 6px 6px 0;padding:14px 18px;margin:0 0 14px;background:var(--surface);}
+.confirmed-item .oi-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:5px;flex-wrap:wrap;}
+.confirmed-item .oi-head strong{font-size:14.5px;}
+.confirmed-item .oi-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--good);background:var(--good-soft);padding:2px 7px;border-radius:20px;white-space:nowrap;}
+.confirmed-item p{margin:0 0 8px;font-size:14px;}
+.confirmed-item .rec{font-size:13.5px;color:var(--ink-soft);}
+.confirmed-item .rec strong{color:var(--ink);}
+
+.module-block{border:1px solid var(--line);border-radius:6px;padding:16px 20px;margin:0 0 14px;background:var(--surface);}
+.module-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px;}
+.module-head h3{margin:0;font-size:15.5px;}
+.table-list{display:grid;gap:6px 20px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));}
+.table-row{display:flex;gap:8px;font-size:13.5px;align-items:baseline;}
+.table-row .tname{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--ink);white-space:nowrap;}
+.table-row .tdesc{color:var(--ink-soft);}
+
+.open-item{border:1px solid var(--line);border-left:3px solid var(--critical);border-radius:0 6px 6px 0;padding:14px 18px;margin:0 0 14px;background:var(--surface);}
+.open-item .oi-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:5px;flex-wrap:wrap;}
+.open-item .oi-head strong{font-size:14.5px;}
+.open-item .oi-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--critical);background:var(--critical-soft);padding:2px 7px;border-radius:20px;white-space:nowrap;}
+.open-item p{margin:0 0 8px;font-size:14px;}
+.open-item .rec{font-size:13.5px;color:var(--ink-soft);}
+.open-item .rec strong{color:var(--ink);}
+
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:4px;margin:0 0 8px;}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:480px;}
+th,td{text-align:left;padding:9px 13px;border-bottom:1px solid var(--line);vertical-align:top;}
+thead th{font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);background:var(--surface-2);}
+tbody tr:last-child td{border-bottom:none;}
+
+.signoff{border:1px solid var(--line);border-radius:6px;padding:22px 26px;background:var(--surface);}
+.signoff-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:22px;margin-top:16px;}
+.sign-line{border-top:1px solid var(--ink-soft);padding-top:8px;font-size:12.5px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;}
+
+a{color:var(--accent);}
+hr.rule{border:none;border-top:1px solid var(--line);margin:44px 0;}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav class="toc" aria-label="Table of contents">
+  <div class="eyebrow">Contents</div>
+  <ol>
+    <li><a href="#summary">0 — Summary</a></li>
+    <li><a href="#diagram">1 — Architecture diagram</a></li>
+    <li><a href="#twotier">2 — Two-tier rationale</a></li>
+    <li><a href="#techchoices">3 — Technology choices</a></li>
+    <li><a href="#schema">4 — Schema at a glance</a></li>
+    <li><a href="#openitems">5 — Confirmed decisions &amp; remaining item</a></li>
+    <li><a href="#security">6 — Security &amp; integrity notes</a></li>
+    <li><a href="#signoff">7 — Sign-off</a></li>
+  </ol>
+</nav>
+
+<main>
+  <div class="cover">
+    <div class="cover-top">
+      <div>
+        <p class="kicker">Approval request</p>
+        <h1 class="title">Database Architecture</h1>
+        <p class="subtitle">SQLite (via Drift) + SQLCipher, two-tier core/business schema for the Accounting Management Software mockup — submitted for design sign-off before implementation freezes.</p>
+      </div>
+      <span class="status-pill">3 of 4 confirmed</span>
+    </div>
+    <dl class="meta-grid">
+      <div><dt>Prepared by</dt><dd>Engineering (Claude Code session)</dd></div>
+      <div><dt>Date</dt><dd>5 Sep 2026</dd></div>
+      <div><dt>Source design</dt><dd>Accounting_Software_Mock_design.pdf (8 screens)</dd></div>
+      <div><dt>Decision needed</dt><dd>1 remaining open item §5</dd></div>
+    </dl>
+  </div>
+
+  <section id="summary">
+    <span class="num">00</span>
+    <h2>Summary</h2>
+    <p class="lead">What's being proposed, in one paragraph, before the detail.</p>
+    <p>The application keeps <strong>two kinds of SQLite database</strong>: one shared <code>core.db</code> holding the business registry, user directory and installation settings, and one <code>biz_&lt;id&gt;.db</code> per business holding that business's ledger, payroll, inventory, assets and reports — matching the mockup's Multi-Branch/Company screen, which states each business's data is "completely separate and isolated." Every table uses a Drift-generated schema over SQLite, encrypted at rest with SQLCipher. Fields and relationships below are cited against the specific mockup screen that shows them. Three items originally flagged for a decision have since been confirmed: the Accounts &amp; Finance and Asset &amp; Valuation schemas stand as designed, the <code>bank_reconciliations</code> table has been added to the schema (§4), and LAN mode's key-sharing requirement is confirmed in scope (its exact mechanism is a Phase 3 implementation detail, not a schema question). One item remains open in §5.</p>
+  </section>
+
+  <section id="diagram">
+    <span class="num">01</span>
+    <h2>Architecture diagram</h2>
+    <p class="lead">The one mechanism the whole design turns on: which file a query can even reach, and where every module's writes end up funnelling.</p>
+    <figure>
+      <svg viewBox="0 0 1160 700" role="img" aria-label="core.db holds the shared business and user registry; opening a business opens its own SQLCipher-encrypted biz file, whose module tables all write into one shared transactions ledger, while its audit log refers back to core.db's users across the file boundary without an enforced foreign key">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <!-- core.db -->
+        <rect x="360" y="22" width="440" height="96" rx="10" fill="none" stroke="currentColor" stroke-width="1.6"/>
+        <text x="380" y="48" font-family="IBM Plex Mono, monospace" font-size="15" font-weight="600" fill="var(--accent)">core.db</text>
+        <text x="380" y="66" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="currentColor" opacity="0.65">shared &#183; one file for the whole installation</text>
+        <text x="380" y="86" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor" opacity="0.85">Businesses &#183; Users &#183; Roles &#183; UserBusinessRoles</text>
+        <text x="380" y="101" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor" opacity="0.85">PermissionsMatrix &#183; AccessRequests &#183; AppSettings &#183; BackupLog &#183; Notifications</text>
+
+        <!-- arrow core -> biz -->
+        <line x1="580" y1="118" x2="580" y2="168" stroke="currentColor" stroke-width="1.6" marker-end="url(#arrow)"/>
+        <text x="596" y="140" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="currentColor">opens db_filename</text>
+        <text x="596" y="155" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="currentColor" opacity="0.65">SQLCipher key &#8592; local master password</text>
+
+        <!-- biz.db outer -->
+        <rect x="40" y="176" width="1080" height="500" rx="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="5 4"/>
+        <text x="60" y="200" font-family="IBM Plex Mono, monospace" font-size="14" font-weight="600" fill="var(--accent)">biz_&lt;id&gt;.db</text>
+        <text x="185" y="200" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="currentColor" opacity="0.65">one file per business &#183; SQLCipher-encrypted &#183; opened only while that business is selected</text>
+
+        <!-- module clusters row A -->
+        <g font-family="IBM Plex Sans, sans-serif">
+          <rect x="60" y="222" width="330" height="98" rx="8" fill="var(--surface-2)" stroke="currentColor" stroke-width="1"/>
+          <text x="76" y="244" font-size="13" font-weight="600" fill="currentColor">Accounts &amp; Finance</text>
+          <text x="76" y="262" font-size="10.5" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.75">ChartOfAccounts &#183; JournalEntries/Lines</text>
+          <text x="76" y="277" font-size="10.5" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.75">BankAccounts/Reconciliations &#183; Invoices</text>
+          <text x="76" y="291" font-size="10.5" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.75">Budgets</text>
+          <text x="76" y="308" font-size="9.5" fill="var(--good)">confirmed feature</text>
+
+          <rect x="410" y="222" width="330" height="98" rx="8" fill="var(--surface-2)" stroke="currentColor" stroke-width="1"/>
+          <text x="426" y="244" font-size="13" font-weight="600" fill="currentColor">Payroll &amp; Staff</text>
+          <text x="426" y="262" font-size="10.5" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.75">Employees &#183; Attendance &#183; Leave*</text>
+          <text x="426" y="277" font-size="10.5" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.75">PayrollRuns/Items &#183; Contracts</text>
+          <text x="426" y="298" font-size="9.5" fill="var(--good)">page 4 of mockup</text>
+
+          <rect x="760" y="222" width="330" height="98" rx="8" fill="var(--surface-2)" stroke="currentColor" stroke-width="1"/>
+          <text x="776" y="244" font-size="13" font-weight="600" fill="currentColor">Asset &amp; Valuation</text>
+          <text x="776" y="262" font-size="10.5" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.75">Assets &#183; DepreciationSchedule</text>
+          <text x="776" y="277" font-size="10.5" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.75">AssetValuations</text>
+          <text x="776" y="298" font-size="9.5" fill="var(--good)">confirmed feature</text>
+        </g>
+
+        <!-- module clusters row B -->
+        <g font-family="IBM Plex Sans, sans-serif">
+          <rect x="60" y="340" width="330" height="98" rx="8" fill="var(--surface-2)" stroke="currentColor" stroke-width="1"/>
+          <text x="76" y="362" font-size="13" font-weight="600" fill="currentColor">Inventory Management</text>
+          <text x="76" y="380" font-size="10.5" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.75">InventoryItems &#183; Purchases</text>
+          <text x="76" y="395" font-size="10.5" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.75">InventoryAdjustments</text>
+          <text x="76" y="416" font-size="9.5" fill="var(--good)">page 5 of mockup</text>
+
+          <rect x="410" y="340" width="330" height="98" rx="8" fill="var(--surface-2)" stroke="currentColor" stroke-width="1"/>
+          <text x="426" y="362" font-size="13" font-weight="600" fill="currentColor">Event &amp; Calendar</text>
+          <text x="426" y="380" font-size="10.5" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.75">MeetingRooms &#183; CalendarEvents</text>
+          <text x="426" y="395" font-size="10.5" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.75">RoomBookings</text>
+          <text x="426" y="416" font-size="9.5" fill="var(--good)">page 6 of mockup</text>
+
+          <rect x="760" y="340" width="330" height="98" rx="8" fill="var(--surface-2)" stroke="currentColor" stroke-width="1"/>
+          <text x="776" y="362" font-size="13" font-weight="600" fill="currentColor">Reports</text>
+          <text x="776" y="380" font-size="10.5" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.75">ReportTemplates &#183; GeneratedReports</text>
+          <text x="776" y="416" font-size="9.5" fill="var(--good)">Bank Reconciliation backed by BankReconciliations</text>
+        </g>
+
+        <!-- transactions ledger -->
+        <rect x="60" y="470" width="680" height="66" rx="10" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.6"/>
+        <text x="400" y="497" text-anchor="middle" font-size="13.5" font-weight="700" fill="var(--accent)" font-family="IBM Plex Mono, monospace">transactions</text>
+        <text x="400" y="514" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.75">single ledger feed &#8212; Dashboard &amp; Reports read only this table</text>
+
+        <!-- feeder arrows into transactions -->
+        <line x1="225" y1="320" x2="400" y2="470" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrow)"/>
+        <line x1="575" y1="320" x2="578" y2="468" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrow)"/>
+        <text x="586" y="452" font-size="10.5" fill="currentColor" opacity="0.8">writes one row</text>
+        <line x1="225" y1="438" x2="440" y2="470" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+        <!-- audit log -->
+        <rect x="760" y="470" width="330" height="66" rx="10" fill="var(--surface-2)" stroke="currentColor" stroke-width="1"/>
+        <text x="776" y="493" font-size="13" font-weight="600" fill="currentColor">audit_log</text>
+        <text x="776" y="510" font-size="10" fill="currentColor" opacity="0.7">occurred_at &#183; action &#183; module &#183; user_id</text>
+
+        <!-- dashed cross-file reference -->
+        <path d="M 925 470 L 925 158 L 780 158 L 780 118" fill="none" stroke="currentColor" stroke-width="1.3" stroke-dasharray="4 4" marker-end="url(#arrow)"/>
+        <text x="920" y="172" font-size="10" fill="var(--critical)" text-anchor="end">user_id &#8594; core.users &#8212; &#167;5 (no FK across files)</text>
+      </svg>
+      <figcaption>One <code>core.db</code> is always open; selecting a business opens that business's own SQLCipher-encrypted file. Inside it, every write-heavy module funnels into one <code>transactions</code> ledger table. All modules shown are confirmed. <code>audit_log.user_id</code> is the one reference that crosses the file boundary, which SQLite cannot enforce as a foreign key — the one remaining open item, flagged in §5.</figcaption>
+    </figure>
+  </section>
+
+  <section id="twotier">
+    <span class="num">02</span>
+    <h2>Why two databases, not one</h2>
+    <p class="lead">The Multi-Branch/Company screen (mockup page 3) states this requirement directly — the design below is what makes it literally true rather than convention.</p>
+    <p>The screen's "Independent &amp; Isolated Businesses" panel reads: <em>"Each business maintains independent financial, staff, inventory and administrative records. Data is completely separate and isolated between businesses."</em> A single shared database with a <code>business_id</code> column on every table would satisfy that in spirit but not in practice — a missing or wrong <code>WHERE business_id = ?</code> clause becomes a silent cross-business data leak instead of a structural impossibility. Under this design, a wrong query can only ever see the one file that's open; there is no query that can accidentally join two businesses' ledgers.</p>
+    <p>A single point stays genuinely shared, and has to: the Sign In screen and the Multi-Branch selector both need to list businesses and authenticate users <em>before</em> any one business's file is chosen. That's what <code>core.db</code> exists for — nothing more than that registry and installation-wide settings.</p>
+  </section>
+
+  <section id="techchoices">
+    <span class="num">03</span>
+    <h2>Technology choices</h2>
+    <p class="lead">Confirming the stack, not re-litigating it — this was decided in the earlier technology report; restated here for the reviewer of this specific approval.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Choice</th><th>What it buys</th></tr></thead>
+        <tbody>
+          <tr><td class="tname" style="font-family:'IBM Plex Mono',monospace;font-weight:600;">SQLite</td><td>A single encrypted file per database, no server process, works identically offline on every Flutter target.</td></tr>
+          <tr><td class="tname" style="font-family:'IBM Plex Mono',monospace;font-weight:600;">Drift</td><td>Typed Dart tables/queries over SQLite (the classes in <code>core_database.dart</code> / <code>business_database.dart</code>) with generated migrations — no hand-written SQL strings scattered through the app.</td></tr>
+          <tr><td class="tname" style="font-family:'IBM Plex Mono',monospace;font-weight:600;">SQLCipher</td><td>Transparent AES-256 encryption at rest for both database files; key derived from the local master password, held in the OS credential store.</td></tr>
+          <tr><td class="tname" style="font-family:'IBM Plex Mono',monospace;font-weight:600;">TEXT UUID keys</td><td>Every table's primary key is a client-generated UUID, not an autoincrement integer — keeps a future sync/merge feature (already named as optional in the architecture deck) from needing a primary-key migration.</td></tr>
+          <tr><td class="tname" style="font-family:'IBM Plex Mono',monospace;font-weight:600;">Integer minor units</td><td>Every money column is <code>INTEGER</code> paise, never <code>REAL</code> — avoids float drift on repeated ledger arithmetic. UI divides by 100 and formats with ₹.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="schema">
+    <span class="num">04</span>
+    <h2>Schema at a glance</h2>
+    <p class="lead">Table names and purpose, grouped by module, each cited against the mockup screen it backs. Full column-level detail (types, defaults, foreign keys) is the companion reference at <code>docs/database-architecture.md</code> — this view is for approving the shape, not auditing every column.</p>
+
+    <div class="module-block">
+      <div class="module-head"><h3>core.db — shared registry</h3><span class="evidence">✓ pages 1, 3, 8</span></div>
+      <div class="table-list">
+        <div class="table-row"><span class="tname">businesses</span><span class="tdesc">the 4 businesses on the Multi-Branch screen</span></div>
+        <div class="table-row"><span class="tname">users</span><span class="tdesc">installation-wide login directory</span></div>
+        <div class="table-row"><span class="tname">roles</span><span class="tdesc">Administrator / Director / Manager / Accountant / Staff</span></div>
+        <div class="table-row"><span class="tname">user_business_roles</span><span class="tdesc">a user's role, per business</span></div>
+        <div class="table-row"><span class="tname">permissions_matrix</span><span class="tdesc">the module × role grid on Security &amp; Admin</span></div>
+        <div class="table-row"><span class="tname">access_requests</span><span class="tdesc">Recent Access Requests panel</span></div>
+        <div class="table-row"><span class="tname">app_settings</span><span class="tdesc">First-Run Setup answer, master password hash</span></div>
+        <div class="table-row"><span class="tname">backup_log</span><span class="tdesc">Backup &amp; Restore panel history</span></div>
+        <div class="table-row"><span class="tname">notifications</span><span class="tdesc">cross-business Dashboard notification feed</span></div>
+      </div>
+    </div>
+
+    <div class="module-block">
+      <div class="module-head"><h3>Accounts &amp; Finance</h3><span class="evidence">✓ confirmed</span></div>
+      <div class="table-list">
+        <div class="table-row"><span class="tname">chart_of_accounts</span><span class="tdesc">account tree, asset/liability/equity/income/expense</span></div>
+        <div class="table-row"><span class="tname">journal_entries / journal_lines</span><span class="tdesc">double-entry postings, must balance to post</span></div>
+        <div class="table-row"><span class="tname">bank_accounts</span><span class="tdesc">Bank &amp; Cash Balance on the Dashboard</span></div>
+        <div class="table-row"><span class="tname">bank_reconciliations</span><span class="tdesc">backs the Reports screen's Bank Reconciliation Report</span></div>
+        <div class="table-row"><span class="tname">invoices / invoice_line_items</span><span class="tdesc">sales invoices and their lines</span></div>
+        <div class="table-row"><span class="tname">budgets</span><span class="tdesc">budget vs. actual, per category/period</span></div>
+      </div>
+    </div>
+
+    <div class="module-block">
+      <div class="module-head"><h3>Payroll &amp; Staff</h3><span class="evidence">✓ page 4</span></div>
+      <div class="table-list">
+        <div class="table-row"><span class="tname">employees</span><span class="tdesc">Employee Overview table</span></div>
+        <div class="table-row"><span class="tname">attendance</span><span class="tdesc">Attendance Summary donut</span></div>
+        <div class="table-row"><span class="tname">leave_requests / leave_balances</span><span class="tdesc">Leave Requests panel</span></div>
+        <div class="table-row"><span class="tname">payroll_runs / payroll_items</span><span class="tdesc">Payroll Breakdown + Payroll Summary</span></div>
+        <div class="table-row"><span class="tname">employment_contracts</span><span class="tdesc">Employment Contracts table</span></div>
+      </div>
+    </div>
+
+    <div class="module-block">
+      <div class="module-head"><h3>Asset &amp; Valuation</h3><span class="evidence">✓ confirmed</span></div>
+      <div class="table-list">
+        <div class="table-row"><span class="tname">assets</span><span class="tdesc">asset register</span></div>
+        <div class="table-row"><span class="tname">asset_depreciation_schedule</span><span class="tdesc">Depreciation report line items</span></div>
+        <div class="table-row"><span class="tname">asset_valuations</span><span class="tdesc">Asset Valuation report</span></div>
+      </div>
+    </div>
+
+    <div class="module-block">
+      <div class="module-head"><h3>Inventory Management</h3><span class="evidence">✓ page 5</span></div>
+      <div class="table-list">
+        <div class="table-row"><span class="tname">inventory_items</span><span class="tdesc">Current Stock Overview</span></div>
+        <div class="table-row"><span class="tname">inventory_purchases</span><span class="tdesc">Recent Purchases table</span></div>
+        <div class="table-row"><span class="tname">inventory_adjustments</span><span class="tdesc">Inventory Adjustments (Recent)</span></div>
+      </div>
+    </div>
+
+    <div class="module-block">
+      <div class="module-head"><h3>Event &amp; Calendar</h3><span class="evidence">✓ page 6</span></div>
+      <div class="table-list">
+        <div class="table-row"><span class="tname">meeting_rooms</span><span class="tdesc">Boardroom Booking list</span></div>
+        <div class="table-row"><span class="tname">calendar_events</span><span class="tdesc">the month grid + Today's Schedule</span></div>
+        <div class="table-row"><span class="tname">room_bookings</span><span class="tdesc">room reserved/available status</span></div>
+      </div>
+    </div>
+
+    <div class="module-block">
+      <div class="module-head"><h3>Reports</h3><span class="evidence">✓ page 7</span></div>
+      <div class="table-list">
+        <div class="table-row"><span class="tname">report_templates</span><span class="tdesc">Saved Report Templates</span></div>
+        <div class="table-row"><span class="tname">generated_reports</span><span class="tdesc">Recent Reports list — metadata only, file on disk</span></div>
+      </div>
+    </div>
+
+    <div class="module-block">
+      <div class="module-head"><h3>transactions (cross-cutting ledger)</h3><span class="evidence">✓ page 2 + 7</span></div>
+      <div class="table-list">
+        <div class="table-row"><span class="tname">transactions</span><span class="tdesc">every module writes one row here — this is what Dashboard "Recent Transactions" and the Reports Income &amp; Expense report both read</span></div>
+      </div>
+    </div>
+
+    <div class="module-block">
+      <div class="module-head"><h3>Audit</h3><span class="evidence">✓ page 8</span></div>
+      <div class="table-list">
+        <div class="table-row"><span class="tname">audit_log</span><span class="tdesc">Activity Log (Latest) — scoped to the open business</span></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <section id="openitems">
+    <span class="num">05</span>
+    <h2>Confirmed decisions, and what's still open</h2>
+    <p class="lead">Four points originally needed a call the mockup and architecture deck didn't fully settle. Three are now confirmed; one remains open.</p>
+
+    <div class="confirmed-item">
+      <div class="oi-head"><strong>Bank Reconciliation now has a backing table</strong><span class="oi-tag">Confirmed</span></div>
+      <p>The Reports screen lists "Bank Reconciliation" under Financial Reports and shows a completed "Bank Reconciliation Report" row in Recent Reports. <code>bank_reconciliations</code> (id, bank_account_id FK, statement_date, statement_balance, reconciled_balance, status) has been added to the schema and generated — see §4.</p>
+    </div>
+
+    <div class="confirmed-item">
+      <div class="oi-head"><strong>Accounts &amp; Finance and Asset &amp; Valuation schemas confirmed</strong><span class="oi-tag">Confirmed</span></div>
+      <p>The 8-page mockup has no dedicated screen for either module, so their tables were originally inferred from standard double-entry/asset-register practice. Both schemas are now confirmed as final — no screen-level verification pending.</p>
+    </div>
+
+    <div class="confirmed-item">
+      <div class="oi-head"><strong>LAN key-sharing is a confirmed requirement</strong><span class="oi-tag">Confirmed</span></div>
+      <p>The First-Run Setup screen's recommended "Local network (LAN)" mode means other devices connect to the host's live database, so the encryption key has to reach every connecting client, not only the device holding the file. This need is confirmed as in-scope; the specific key-sharing mechanism (e.g. a per-install key exchanged at first-run pairing, vs. a per-user key wrapping the database key) is a Phase 3 implementation detail to be designed when LAN mode is built, not a schema question blocking this approval.</p>
+    </div>
+
+    <div class="open-item">
+      <div class="oi-head"><strong>Cross-file references aren't enforced</strong><span class="oi-tag">audit_log.user_id</span></div>
+      <p><code>audit_log.user_id</code> (and any "created/modified by" column in a business file) points at a row in <code>core.db</code>'s <code>users</code> table — a different SQLite file. SQLite has no mechanism to enforce a foreign key across two separate database files, so this integrity is an application-code guarantee only; a bug could silently write an audit row for a user id that no longer exists.</p>
+      <p class="rec"><strong>Recommendation:</strong> accept this as a documented, tested application-level invariant, or duplicate a minimal user snapshot (id + username) into each business file at write time so the record is self-contained.</p>
+    </div>
+  </section>
+
+  <section id="security">
+    <span class="num">06</span>
+    <h2>Security &amp; integrity notes</h2>
+    <ul>
+      <li><strong>Encryption at rest:</strong> both <code>core.db</code> and every <code>biz_&lt;id&gt;.db</code> are SQLCipher-encrypted; the key is derived from the local master password and never written to disk in the clear.</li>
+      <li><strong>No binary data in SQLite:</strong> generated PDF/XLSX reports are filesystem artifacts referenced by <code>file_path</code> in <code>generated_reports</code>, not stored as BLOBs — keeps the encrypted file small and backups fast.</li>
+      <li><strong>Double-entry integrity:</strong> a <code>journal_entries</code> row can only move from <code>draft</code> to <code>posted</code> once its <code>journal_lines</code> balance — enforced in application code before the status write, not by a database constraint.</li>
+      <li><strong>Denormalized ledger:</strong> <code>transactions</code> is intentionally a write-through copy, not a view — recomputing the Dashboard/Reports feed with five live joins doesn't scale past a few thousand rows on laptop-class SQLite.</li>
+    </ul>
+  </section>
+
+  <section id="signoff">
+    <span class="num">07</span>
+    <h2>Sign-off</h2>
+    <div class="signoff">
+      <p style="margin:0;">Approving this document confirms the two-tier <code>core.db</code> / <code>biz_&lt;id&gt;.db</code> shape and the table list in §4 (including the three items already confirmed in §5), and records a decision on the one remaining open item in §5 (or defers it explicitly, with an owner and date).</p>
+      <div class="signoff-grid">
+        <div class="sign-line">Approved by — name, role</div>
+        <div class="sign-line">Date</div>
+        <div class="sign-line">§5 decisions — attached / pending</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+</body>
+</html>

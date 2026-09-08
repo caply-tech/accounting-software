@@ -1,0 +1,21 @@
+<root><svg viewBox="0 0 520 300" role="img" aria-label="Asset and Valuation diagram: asset_depreciation_schedule and asset_valuations both reference assets.">
+          <defs>
+            <marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+          </defs>
+          <g stroke="var(--ink-soft)" stroke-width="1.2" fill="none" marker-end="url(#ar4)">
+            <line x1="130" y1="240" x2="185" y2="92"/>
+            <line x1="390" y1="240" x2="260" y2="92"/>
+          </g>
+          <text x="200" y="170" font-family="Courier New, monospace" font-size="10" fill="var(--ink-soft)">asset_id</text>
+          <rect x="160" y="30" width="200" height="62" rx="7" fill="var(--box-hub)" stroke="var(--ink-soft)" stroke-width="1.4"/>
+          <text x="180" y="56" font-family="Courier New, monospace" font-weight="bold" font-size="14" fill="var(--ink)">assets</text>
+          <text x="180" y="76" font-size="10.5" fill="var(--ink-soft)">cost, method, useful life</text>
+
+          <rect x="20" y="240" width="200" height="56" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+          <text x="34" y="262" font-family="Courier New, monospace" font-weight="bold" font-size="10.5" fill="var(--ink)">asset_depreciation_schedule</text>
+          <text x="34" y="280" font-size="9.5" fill="var(--ink-soft)">monthly book value</text>
+
+          <rect x="300" y="240" width="200" height="56" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+          <text x="314" y="262" font-family="Courier New, monospace" font-weight="bold" font-size="12" fill="var(--ink)">asset_valuations</text>
+          <text x="314" y="280" font-size="9.5" fill="var(--ink-soft)">valuation history</text>
+        </svg></root>

@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web-preview",
+      "runtimeExecutable": "C:\\FlutterSDK\\bin\\cache\\dart-sdk\\bin\\dart.exe",
+      "runtimeArgs": ["run", "tool/serve.dart"],
+      "port": 8080
+    }
+  ]
+}

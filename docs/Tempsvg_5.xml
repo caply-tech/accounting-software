@@ -1,0 +1,26 @@
+<root><svg viewBox="0 0 560 300" role="img" aria-label="Event and Calendar diagram: calendar_events references meeting_rooms; room_bookings references both meeting_rooms and calendar_events.">
+          <defs>
+            <marker id="ar6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+          </defs>
+          <g stroke="var(--ink-soft)" stroke-width="1.2" fill="none" marker-end="url(#ar6)">
+            <line x1="230" y1="61" x2="330" y2="61"/>
+            <line x1="150" y1="240" x2="150" y2="92"/>
+            <line x1="220" y1="240" x2="400" y2="92"/>
+          </g>
+          <g font-family="Courier New, monospace" font-size="9.5" fill="var(--ink-soft)">
+            <rect x="245" y="50" width="66" height="13" fill="var(--surface)"/><text x="247" y="60">room_id, null</text>
+            <rect x="120" y="160" width="60" height="13" fill="var(--surface)"/><text x="122" y="170">room_id</text>
+            <rect x="330" y="160" width="66" height="13" fill="var(--surface)"/><text x="332" y="170">event_id, null</text>
+          </g>
+          <rect x="30" y="30" width="200" height="62" rx="7" fill="var(--box-hub)" stroke="var(--ink-soft)" stroke-width="1.4"/>
+          <text x="46" y="56" font-family="Courier New, monospace" font-weight="bold" font-size="13" fill="var(--ink)">meeting_rooms</text>
+          <text x="46" y="76" font-size="10" fill="var(--ink-soft)">name &amp; capacity</text>
+
+          <rect x="330" y="30" width="200" height="62" rx="7" fill="var(--box-hub)" stroke="var(--ink-soft)" stroke-width="1.4"/>
+          <text x="346" y="56" font-family="Courier New, monospace" font-weight="bold" font-size="12.5" fill="var(--ink)">calendar_events</text>
+          <text x="346" y="76" font-size="10" fill="var(--ink-soft)">meetings on the calendar</text>
+
+          <rect x="50" y="240" width="200" height="56" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+          <text x="66" y="262" font-family="Courier New, monospace" font-weight="bold" font-size="12" fill="var(--ink)">room_bookings</text>
+          <text x="66" y="280" font-size="9.5" fill="var(--ink-soft)">reserved / available</text>
+        </svg></root>

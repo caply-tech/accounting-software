@@ -1,0 +1,456 @@
+<!doctype html>
+<title>Database ER Diagram</title>
+<style>
+:root{
+  --bg:#ffffff;
+  --surface:#f6f7fa;
+  --surface-2:#edeff4;
+  --ink:#172142;
+  --ink-soft:#5b6478;
+  --line:#d7dbe6;
+  --accent:#ea6a1e;
+  --accent-soft:#fceade;
+  --good:#1e8e5a;
+  --good-soft:#e4f5ec;
+  --warn:#b8790a;
+  --warn-soft:#fbf0dc;
+  --critical:#c43d2e;
+  --critical-soft:#fbe7e3;
+  --box:#ffffff;
+  --box-hub:#eef2fb;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10141f;
+    --surface:#171c2b;
+    --surface-2:#1e2436;
+    --ink:#eceef5;
+    --ink-soft:#9aa2b8;
+    --line:#2a3145;
+    --accent:#ff8a47;
+    --accent-soft:#3a2415;
+    --good:#4fcb8d;
+    --good-soft:#123423;
+    --warn:#e3b155;
+    --warn-soft:#3a2c10;
+    --critical:#f0776a;
+    --critical-soft:#3a1917;
+    --box:#1b2133;
+    --box-hub:#212a44;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10141f;
+  --surface:#171c2b;
+  --surface-2:#1e2436;
+  --ink:#eceef5;
+  --ink-soft:#9aa2b8;
+  --line:#2a3145;
+  --accent:#ff8a47;
+  --accent-soft:#3a2415;
+  --good:#4fcb8d;
+  --good-soft:#123423;
+  --warn:#e3b155;
+  --warn-soft:#3a2c10;
+  --critical:#f0776a;
+  --critical-soft:#3a1917;
+  --box:#1b2133;
+  --box-hub:#212a44;
+}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,Segoe UI,sans-serif;line-height:1.55;}
+.wrap{max-width:1240px;margin:0 auto;padding:44px 24px 90px;}
+.kicker{font-family:'Courier New',monospace;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);margin:0 0 10px;}
+h1{font-size:32px;margin:0 0 10px;color:var(--ink);text-wrap:balance;}
+p.lead{max-width:78ch;color:var(--ink-soft);font-size:15px;margin:0 0 36px;}
+.legend{display:flex;flex-wrap:wrap;gap:18px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 18px;margin:0 0 40px;font-size:12.5px;color:var(--ink-soft);}
+.legend .item{display:flex;align-items:center;gap:7px;}
+.legend .swatch{width:16px;height:16px;border-radius:3px;flex:none;}
+.legend .ln{width:22px;height:0;border-top:2px solid var(--ink-soft);flex:none;}
+.legend .ln.dashed{border-top-style:dashed;}
+figure{margin:0 0 52px;}
+figure svg{width:100%;height:auto;display:block;background:var(--surface);border:1px solid var(--line);border-radius:10px;}
+figcaption{margin-top:10px;font-size:12.5px;color:var(--ink-soft);max-width:80ch;}
+h2.cluster{font-size:19px;margin:0 0 4px;color:var(--ink);}
+p.cluster-note{font-size:12.5px;color:var(--ink-soft);margin:0 0 16px;}
+.et{font-family:'Courier New',monospace;}
+</style>
+
+<div class="wrap">
+  <p class="kicker">Reference Diagram</p>
+  <h1>Entity&ndash;Relationship Diagram</h1>
+  <p class="lead">Every table from <code class="et">docs/database-architecture.md</code>, grouped exactly as the doc groups them: one shared <code class="et">core.db</code>, then one section per module inside each business's own <code class="et">biz_&lt;id&gt;.db</code>. An arrow reads &ldquo;this table points at that one&rdquo; &mdash; the label on each arrow is the column doing the pointing.</p>
+
+  <div class="legend">
+    <div class="item"><span class="swatch" style="background:var(--box-hub);border:1px solid var(--ink-soft);"></span> Referenced by others (a &ldquo;parent&rdquo;)</div>
+    <div class="item"><span class="swatch" style="background:var(--box);border:1px solid var(--line);"></span> References a parent (a &ldquo;child&rdquo;)</div>
+    <div class="item"><span class="ln"></span> Foreign key, enforced by SQLite</div>
+    <div class="item"><span class="ln dashed" style="border-color:var(--critical);"></span> Cross-file reference, <em>not</em> enforced &mdash; see database-architecture.md &sect; &ldquo;why this shape&rdquo;</div>
+  </div>
+
+  <!-- ============================================================ CLUSTER 1: core.db -->
+  <h2 class="cluster">core.db &mdash; the shared registry</h2>
+  <p class="cluster-note">One file for the whole installation. <code class="et">businesses</code>, <code class="et">users</code> and <code class="et">roles</code> are the three parent lists everything else here points back to.</p>
+  <figure>
+    <svg viewBox="0 0 1180 380" role="img" aria-label="core.db entity-relationship diagram: businesses, users and roles are parent tables; user_business_roles, permissions_matrix, access_requests, backup_log and notifications each reference one or more of them via foreign keys; app_settings stands alone with no relationships.">
+      <defs>
+        <marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+        </marker>
+      </defs>
+      <g font-family="Courier New, monospace" font-size="10.5" fill="var(--ink-soft)">
+        <!-- connecting lines (drawn first, under boxes) -->
+        <g stroke="var(--ink-soft)" stroke-width="1.2" fill="none" marker-end="url(#ar1)">
+          <line x1="125" y1="280" x2="470" y2="92"/>
+          <line x1="155" y1="280" x2="430" y2="92"/>
+          <line x1="95"  y1="280" x2="155" y2="92"/>
+          <line x1="345" y1="280" x2="475" y2="92"/>
+          <line x1="300" y1="280" x2="165" y2="92"/>
+          <line x1="400" y1="280" x2="785" y2="92"/>
+          <line x1="565" y1="280" x2="790" y2="92"/>
+          <line x1="760" y1="280" x2="175" y2="92"/>
+          <line x1="950" y1="280" x2="185" y2="92"/>
+        </g>
+        <rect x="98" y="178" width="128" height="15" fill="var(--surface)"/>
+        <text x="100" y="189">user_id, business_id</text>
+        <rect x="470" y="205" width="72" height="15" fill="var(--surface)"/>
+        <text x="472" y="216">role_id</text>
+        <rect x="565" y="140" width="80" height="15" fill="var(--surface)"/>
+        <text x="567" y="151">role_id</text>
+        <rect x="700" y="178" width="86" height="15" fill="var(--surface)"/>
+        <text x="702" y="189">business_id</text>
+        <rect x="870" y="150" width="86" height="15" fill="var(--surface)"/>
+        <text x="872" y="161">business_id</text>
+        <rect x="40" y="140" width="86" height="15" fill="var(--surface)"/>
+        <text x="42" y="151">requested_by</text>
+      </g>
+
+      <!-- Row A: hubs + standalone -->
+      <g font-family="-apple-system,Segoe UI,sans-serif">
+        <g>
+          <rect x="60" y="30" width="180" height="62" rx="7" fill="var(--box-hub)" stroke="var(--ink-soft)" stroke-width="1.4"/>
+          <text x="80" y="56" font-family="Courier New, monospace" font-weight="bold" font-size="14" fill="var(--ink)">businesses</text>
+          <text x="80" y="76" font-size="10.5" fill="var(--ink-soft)">PK id &middot; 4 rows today</text>
+        </g>
+        <g>
+          <rect x="380" y="30" width="180" height="62" rx="7" fill="var(--box-hub)" stroke="var(--ink-soft)" stroke-width="1.4"/>
+          <text x="400" y="56" font-family="Courier New, monospace" font-weight="bold" font-size="14" fill="var(--ink)">users</text>
+          <text x="400" y="76" font-size="10.5" fill="var(--ink-soft)">PK id &middot; login directory</text>
+        </g>
+        <g>
+          <rect x="700" y="30" width="180" height="62" rx="7" fill="var(--box-hub)" stroke="var(--ink-soft)" stroke-width="1.4"/>
+          <text x="720" y="56" font-family="Courier New, monospace" font-weight="bold" font-size="14" fill="var(--ink)">roles</text>
+          <text x="720" y="76" font-size="10.5" fill="var(--ink-soft)">PK id &middot; 5 fixed roles</text>
+        </g>
+        <g>
+          <rect x="960" y="30" width="180" height="62" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2" stroke-dasharray="3 3"/>
+          <text x="980" y="56" font-family="Courier New, monospace" font-weight="bold" font-size="14" fill="var(--ink)">app_settings</text>
+          <text x="980" y="76" font-size="10.5" fill="var(--ink-soft)">no relationships</text>
+        </g>
+      </g>
+
+      <!-- Row B: dependents -->
+      <g font-family="-apple-system,Segoe UI,sans-serif">
+        <g>
+          <rect x="30" y="280" width="190" height="66" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+          <text x="48" y="304" font-family="Courier New, monospace" font-weight="bold" font-size="12.5" fill="var(--ink)">access_requests</text>
+          <text x="48" y="322" font-size="10" fill="var(--ink-soft)">Recent Access Requests panel</text>
+          <text x="48" y="336" font-size="10" fill="var(--ink-soft)">FK &times; 3 above</text>
+        </g>
+        <g>
+          <rect x="250" y="280" width="200" height="66" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+          <text x="266" y="304" font-family="Courier New, monospace" font-weight="bold" font-size="12" fill="var(--ink)">user_business_roles</text>
+          <text x="266" y="322" font-size="10" fill="var(--ink-soft)">a user's role, per business</text>
+          <text x="266" y="336" font-size="10" fill="var(--ink-soft)">FK &times; 3 above</text>
+        </g>
+        <g>
+          <rect x="480" y="280" width="170" height="66" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+          <text x="496" y="304" font-family="Courier New, monospace" font-weight="bold" font-size="12" fill="var(--ink)">permissions_matrix</text>
+          <text x="496" y="322" font-size="10" fill="var(--ink-soft)">module &times; role grid</text>
+        </g>
+        <g>
+          <rect x="680" y="280" width="160" height="66" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+          <text x="696" y="304" font-family="Courier New, monospace" font-weight="bold" font-size="12.5" fill="var(--ink)">backup_log</text>
+          <text x="696" y="322" font-size="10" fill="var(--ink-soft)">Backup &amp; Restore history</text>
+        </g>
+        <g>
+          <rect x="870" y="280" width="160" height="66" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+          <text x="886" y="304" font-family="Courier New, monospace" font-weight="bold" font-size="12.5" fill="var(--ink)">notifications</text>
+          <text x="886" y="322" font-size="10" fill="var(--ink-soft)">Dashboard alerts feed</text>
+        </g>
+      </g>
+    </svg>
+    <figcaption>Every row created in <code class="et">access_requests</code>, <code class="et">user_business_roles</code>, <code class="et">permissions_matrix</code>, <code class="et">backup_log</code> or <code class="et">notifications</code> must point at a real business, user or role &mdash; SQLite enforces this. <code class="et">app_settings</code> is a plain key/value table with no relationships.</figcaption>
+  </figure>
+
+  <!-- ============================================================ CLUSTER 2: Accounts & Finance -->
+  <h2 class="cluster">biz_&lt;id&gt;.db &mdash; Accounts &amp; Finance</h2>
+  <p class="cluster-note">One instance of this whole schema per business. <code class="et">chart_of_accounts</code>, <code class="et">journal_entries</code>, <code class="et">bank_accounts</code> and <code class="et">invoices</code> are parents; <code class="et">budgets</code> stands alone.</p>
+  <p class="cluster-note" style="margin-top:-12px;">Confirmed feature: <code class="et">bank_reconciliations</code> backs the Reports screen's Bank Reconciliation Report.</p>
+  <figure>
+    <svg viewBox="0 0 1260 360" role="img" aria-label="Accounts and Finance entity-relationship diagram: chart_of_accounts references itself for sub-accounts; journal_lines references both journal_entries and chart_of_accounts; invoice_line_items references invoices; transactions references bank_accounts; bank_reconciliations references bank_accounts; budgets has no relationships.">
+      <defs>
+        <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+        </marker>
+      </defs>
+      <!-- Row A (y 30-92): parents + standalone, all in one row so the 30-280 gap band stays empty -->
+      <g font-family="-apple-system,Segoe UI,sans-serif">
+        <rect x="60" y="30" width="180" height="62" rx="7" fill="var(--box-hub)" stroke="var(--ink-soft)" stroke-width="1.4"/>
+        <text x="78" y="56" font-family="Courier New, monospace" font-weight="bold" font-size="12.5" fill="var(--ink)">chart_of_accounts</text>
+        <text x="78" y="76" font-size="10" fill="var(--ink-soft)">account tree, self-referencing</text>
+
+        <rect x="330" y="30" width="180" height="62" rx="7" fill="var(--box-hub)" stroke="var(--ink-soft)" stroke-width="1.4"/>
+        <text x="350" y="56" font-family="Courier New, monospace" font-weight="bold" font-size="12.5" fill="var(--ink)">journal_entries</text>
+        <text x="350" y="76" font-size="10" fill="var(--ink-soft)">draft &rarr; posted</text>
+
+        <rect x="600" y="30" width="180" height="62" rx="7" fill="var(--box-hub)" stroke="var(--ink-soft)" stroke-width="1.4"/>
+        <text x="620" y="56" font-family="Courier New, monospace" font-weight="bold" font-size="13" fill="var(--ink)">bank_accounts</text>
+        <text x="620" y="76" font-size="10" fill="var(--ink-soft)">Dashboard cash balance</text>
+
+        <rect x="870" y="30" width="150" height="62" rx="7" fill="var(--box-hub)" stroke="var(--ink-soft)" stroke-width="1.4"/>
+        <text x="888" y="56" font-family="Courier New, monospace" font-weight="bold" font-size="13" fill="var(--ink)">invoices</text>
+        <text x="888" y="76" font-size="10" fill="var(--ink-soft)">sales invoices</text>
+
+        <rect x="1040" y="30" width="180" height="62" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2" stroke-dasharray="3 3"/>
+        <text x="1058" y="56" font-family="Courier New, monospace" font-weight="bold" font-size="13" fill="var(--ink)">budgets</text>
+        <text x="1058" y="76" font-size="10" fill="var(--ink-soft)">no relationships</text>
+      </g>
+
+      <!-- connectors: row A bottom (y=92) to row B top (y=280) — the 92-280 band has no boxes in it, so every straight line here is collision-free regardless of x -->
+      <g stroke="var(--ink-soft)" stroke-width="1.2" fill="none" marker-end="url(#ar2)">
+        <line x1="245" y1="280" x2="245" y2="92"/>
+        <line x1="290" y1="280" x2="150" y2="92"/>
+        <line x1="560" y1="280" x2="670" y2="92"/>
+        <line x1="890" y1="280" x2="945" y2="92"/>
+        <line x1="1130" y1="280" x2="690" y2="92"/>
+        <path d="M 240 46 C 300 38, 300 82, 240 74" stroke="var(--ink-soft)" fill="none" marker-end="url(#ar2)"/>
+      </g>
+      <g font-family="Courier New, monospace" font-size="10.5" fill="var(--ink-soft)">
+        <rect x="205" y="175" width="94" height="15" fill="var(--surface)"/>
+        <text x="207" y="186">journal_entry_id</text>
+        <rect x="100" y="175" width="94" height="15" fill="var(--surface)"/>
+        <text x="102" y="186">account_id</text>
+        <rect x="580" y="175" width="105" height="15" fill="var(--surface)"/>
+        <text x="582" y="186">bank_account_id</text>
+        <rect x="850" y="175" width="70" height="15" fill="var(--surface)"/>
+        <text x="852" y="186">invoice_id</text>
+        <rect x="825" y="175" width="115" height="15" fill="var(--surface)"/>
+        <text x="827" y="186">account_id, null</text>
+        <rect x="248" y="55" width="90" height="14" fill="var(--surface)"/>
+        <text x="250" y="65">parent_account_id</text>
+      </g>
+
+      <!-- Row B (y 280-340): children -->
+      <g font-family="-apple-system,Segoe UI,sans-serif">
+        <rect x="150" y="280" width="190" height="60" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+        <text x="168" y="304" font-family="Courier New, monospace" font-weight="bold" font-size="12" fill="var(--ink)">journal_lines</text>
+        <text x="168" y="322" font-size="10" fill="var(--ink-soft)">debit / credit, must balance</text>
+
+        <rect x="450" y="280" width="210" height="60" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+        <text x="466" y="304" font-family="Courier New, monospace" font-weight="bold" font-size="11" fill="var(--ink)">bank_reconciliations</text>
+        <text x="466" y="322" font-size="10" fill="var(--ink-soft)">statement vs. book balance</text>
+
+        <rect x="800" y="280" width="190" height="60" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+        <text x="816" y="304" font-family="Courier New, monospace" font-weight="bold" font-size="11.5" fill="var(--ink)">invoice_line_items</text>
+        <text x="816" y="322" font-size="10" fill="var(--ink-soft)">what's on the invoice</text>
+
+        <rect x="1040" y="280" width="180" height="60" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+        <text x="1056" y="304" font-family="Courier New, monospace" font-weight="bold" font-size="12.5" fill="var(--ink)">transactions</text>
+        <text x="1056" y="322" font-size="9.5" fill="var(--ink-soft)">Dashboard + Reports read here</text>
+      </g>
+    </svg>
+    <figcaption>Every journal entry's lines must reference both a journal entry and a real account &mdash; the application refuses to mark a journal &ldquo;posted&rdquo; unless its lines balance. <code class="et">bank_reconciliations</code> records one statement-vs-book match per bank account, at a point in time. <code class="et">budgets</code> is tracked independently and compares itself against <code class="et">transactions</code> at report time, not via a stored relationship.</figcaption>
+  </figure>
+
+  <!-- ============================================================ CLUSTER 3: Payroll & Staff -->
+  <h2 class="cluster">biz_&lt;id&gt;.db &mdash; Payroll &amp; Staff</h2>
+  <p class="cluster-note"><code class="et">employees</code> is the hub every other table here points back to.</p>
+  <figure>
+    <svg viewBox="0 0 1140 340" role="img" aria-label="Payroll and Staff entity-relationship diagram: employees is referenced by attendance, leave_requests, leave_balances, employment_contracts and payroll_items; payroll_items also references payroll_runs.">
+      <defs>
+        <marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+        </marker>
+      </defs>
+      <g stroke="var(--ink-soft)" stroke-width="1.2" fill="none" marker-end="url(#ar3)">
+        <line x1="90"  y1="270" x2="260" y2="92"/>
+        <line x1="290" y1="270" x2="300" y2="92"/>
+        <line x1="490" y1="270" x2="335" y2="92"/>
+        <line x1="690" y1="270" x2="370" y2="92"/>
+        <line x1="900" y1="270" x2="395" y2="92"/>
+        <line x1="960" y1="270" x2="770" y2="92"/>
+      </g>
+      <g font-family="Courier New, monospace" font-size="10" fill="var(--ink-soft)">
+        <rect x="640" y="150" width="76" height="14" fill="var(--surface)"/>
+        <text x="642" y="161">employee_id</text>
+        <rect x="850" y="185" width="94" height="14" fill="var(--surface)"/>
+        <text x="852" y="196">payroll_run_id</text>
+      </g>
+      <g font-family="-apple-system,Segoe UI,sans-serif">
+        <rect x="200" y="30" width="200" height="62" rx="7" fill="var(--box-hub)" stroke="var(--ink-soft)" stroke-width="1.4"/>
+        <text x="220" y="56" font-family="Courier New, monospace" font-weight="bold" font-size="14" fill="var(--ink)">employees</text>
+        <text x="220" y="76" font-size="10.5" fill="var(--ink-soft)">Employee Overview screen</text>
+
+        <rect x="700" y="30" width="200" height="62" rx="7" fill="var(--box-hub)" stroke="var(--ink-soft)" stroke-width="1.4"/>
+        <text x="720" y="56" font-family="Courier New, monospace" font-weight="bold" font-size="13.5" fill="var(--ink)">payroll_runs</text>
+        <text x="720" y="76" font-size="10.5" fill="var(--ink-soft)">one per month</text>
+      </g>
+      <g font-family="-apple-system,Segoe UI,sans-serif">
+        <rect x="30"  y="270" width="150" height="58" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+        <text x="44" y="293" font-family="Courier New, monospace" font-weight="bold" font-size="12" fill="var(--ink)">attendance</text>
+        <text x="44" y="311" font-size="9.5" fill="var(--ink-soft)">present / absent / late</text>
+
+        <rect x="200" y="270" width="180" height="58" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+        <text x="214" y="293" font-family="Courier New, monospace" font-weight="bold" font-size="11.5" fill="var(--ink)">leave_requests</text>
+        <text x="214" y="311" font-size="9.5" fill="var(--ink-soft)">pending / approved</text>
+
+        <rect x="400" y="270" width="180" height="58" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+        <text x="414" y="293" font-family="Courier New, monospace" font-weight="bold" font-size="11.5" fill="var(--ink)">leave_balances</text>
+        <text x="414" y="311" font-size="9.5" fill="var(--ink-soft)">days left, per type</text>
+
+        <rect x="600" y="270" width="190" height="58" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+        <text x="614" y="293" font-family="Courier New, monospace" font-weight="bold" font-size="11" fill="var(--ink)">employment_contracts</text>
+        <text x="614" y="311" font-size="9.5" fill="var(--ink-soft)">start / expiry dates</text>
+
+        <rect x="810" y="270" width="180" height="58" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+        <text x="824" y="293" font-family="Courier New, monospace" font-weight="bold" font-size="11.5" fill="var(--ink)">payroll_items</text>
+        <text x="824" y="311" font-size="9.5" fill="var(--ink-soft)">one row per employee</text>
+      </g>
+    </svg>
+    <figcaption>A closed month's <code class="et">payroll_runs</code> total is the stored sum of its <code class="et">payroll_items</code> &mdash; it never silently shifts if an employee record changes later.</figcaption>
+  </figure>
+
+  <!-- ============================================================ CLUSTER 4: Asset & Valuation + Inventory -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:36px;">
+    <div>
+      <h2 class="cluster">Asset &amp; Valuation</h2>
+      <p class="cluster-note"><code class="et">assets</code> is the parent.</p>
+      <figure>
+        <svg viewBox="0 0 520 300" role="img" aria-label="Asset and Valuation diagram: asset_depreciation_schedule and asset_valuations both reference assets.">
+          <defs>
+            <marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+          </defs>
+          <g stroke="var(--ink-soft)" stroke-width="1.2" fill="none" marker-end="url(#ar4)">
+            <line x1="130" y1="240" x2="185" y2="92"/>
+            <line x1="390" y1="240" x2="260" y2="92"/>
+          </g>
+          <text x="200" y="170" font-family="Courier New, monospace" font-size="10" fill="var(--ink-soft)">asset_id</text>
+          <rect x="160" y="30" width="200" height="62" rx="7" fill="var(--box-hub)" stroke="var(--ink-soft)" stroke-width="1.4"/>
+          <text x="180" y="56" font-family="Courier New, monospace" font-weight="bold" font-size="14" fill="var(--ink)">assets</text>
+          <text x="180" y="76" font-size="10.5" fill="var(--ink-soft)">cost, method, useful life</text>
+
+          <rect x="20" y="240" width="200" height="56" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+          <text x="34" y="262" font-family="Courier New, monospace" font-weight="bold" font-size="10.5" fill="var(--ink)">asset_depreciation_schedule</text>
+          <text x="34" y="280" font-size="9.5" fill="var(--ink-soft)">monthly book value</text>
+
+          <rect x="300" y="240" width="200" height="56" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+          <text x="314" y="262" font-family="Courier New, monospace" font-weight="bold" font-size="12" fill="var(--ink)">asset_valuations</text>
+          <text x="314" y="280" font-size="9.5" fill="var(--ink-soft)">valuation history</text>
+        </svg>
+        <figcaption>Both children track something that changes over time for one fixed asset.</figcaption>
+      </figure>
+    </div>
+    <div>
+      <h2 class="cluster">Inventory Management</h2>
+      <p class="cluster-note"><code class="et">inventory_items</code> is the parent.</p>
+      <figure>
+        <svg viewBox="0 0 520 300" role="img" aria-label="Inventory Management diagram: inventory_purchases and inventory_adjustments both reference inventory_items.">
+          <defs>
+            <marker id="ar5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+          </defs>
+          <g stroke="var(--ink-soft)" stroke-width="1.2" fill="none" marker-end="url(#ar5)">
+            <line x1="130" y1="240" x2="185" y2="92"/>
+            <line x1="390" y1="240" x2="260" y2="92"/>
+          </g>
+          <text x="200" y="170" font-family="Courier New, monospace" font-size="10" fill="var(--ink-soft)">item_id</text>
+          <rect x="160" y="30" width="200" height="62" rx="7" fill="var(--box-hub)" stroke="var(--ink-soft)" stroke-width="1.4"/>
+          <text x="180" y="56" font-family="Courier New, monospace" font-weight="bold" font-size="13" fill="var(--ink)">inventory_items</text>
+          <text x="180" y="76" font-size="10.5" fill="var(--ink-soft)">stock, cost, min level</text>
+
+          <rect x="20" y="240" width="200" height="56" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+          <text x="34" y="262" font-family="Courier New, monospace" font-weight="bold" font-size="11" fill="var(--ink)">inventory_purchases</text>
+          <text x="34" y="280" font-size="9.5" fill="var(--ink-soft)">also posts a transaction</text>
+
+          <rect x="300" y="240" width="200" height="56" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+          <text x="314" y="262" font-family="Courier New, monospace" font-weight="bold" font-size="10.5" fill="var(--ink)">inventory_adjustments</text>
+          <text x="314" y="280" font-size="9.5" fill="var(--ink-soft)">addition / deduction</text>
+        </svg>
+        <figcaption>A purchase also writes a row into Accounts &amp; Finance's <code class="et">transactions</code> table (not shown &mdash; cross-module, same file).</figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <!-- ============================================================ CLUSTER 5: Event & Calendar + Reports -->
+  <div style="display:grid;grid-template-columns:1.1fr 0.9fr;gap:36px;">
+    <div>
+      <h2 class="cluster">Event &amp; Calendar</h2>
+      <p class="cluster-note"><code class="et">room_bookings</code> depends on both of the others.</p>
+      <figure>
+        <svg viewBox="0 0 560 300" role="img" aria-label="Event and Calendar diagram: calendar_events references meeting_rooms; room_bookings references both meeting_rooms and calendar_events.">
+          <defs>
+            <marker id="ar6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+          </defs>
+          <g stroke="var(--ink-soft)" stroke-width="1.2" fill="none" marker-end="url(#ar6)">
+            <line x1="230" y1="61" x2="330" y2="61"/>
+            <line x1="150" y1="240" x2="150" y2="92"/>
+            <line x1="220" y1="240" x2="400" y2="92"/>
+          </g>
+          <g font-family="Courier New, monospace" font-size="9.5" fill="var(--ink-soft)">
+            <rect x="245" y="50" width="66" height="13" fill="var(--surface)"/><text x="247" y="60">room_id, null</text>
+            <rect x="120" y="160" width="60" height="13" fill="var(--surface)"/><text x="122" y="170">room_id</text>
+            <rect x="330" y="160" width="66" height="13" fill="var(--surface)"/><text x="332" y="170">event_id, null</text>
+          </g>
+          <rect x="30" y="30" width="200" height="62" rx="7" fill="var(--box-hub)" stroke="var(--ink-soft)" stroke-width="1.4"/>
+          <text x="46" y="56" font-family="Courier New, monospace" font-weight="bold" font-size="13" fill="var(--ink)">meeting_rooms</text>
+          <text x="46" y="76" font-size="10" fill="var(--ink-soft)">name &amp; capacity</text>
+
+          <rect x="330" y="30" width="200" height="62" rx="7" fill="var(--box-hub)" stroke="var(--ink-soft)" stroke-width="1.4"/>
+          <text x="346" y="56" font-family="Courier New, monospace" font-weight="bold" font-size="12.5" fill="var(--ink)">calendar_events</text>
+          <text x="346" y="76" font-size="10" fill="var(--ink-soft)">meetings on the calendar</text>
+
+          <rect x="50" y="240" width="200" height="56" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+          <text x="66" y="262" font-family="Courier New, monospace" font-weight="bold" font-size="12" fill="var(--ink)">room_bookings</text>
+          <text x="66" y="280" font-size="9.5" fill="var(--ink-soft)">reserved / available</text>
+        </svg>
+        <figcaption>A booking usually ties a room to a specific event, but the event link is optional.</figcaption>
+      </figure>
+    </div>
+    <div>
+      <h2 class="cluster">Reports &amp; Audit</h2>
+      <p class="cluster-note"><code class="et">audit_log</code> is the one table that points outside this file.</p>
+      <figure>
+        <svg viewBox="0 0 560 300" role="img" aria-label="Reports and Audit diagram: generated_reports references report_templates. audit_log is a separate box with a dashed unenforced arrow pointing to a tag representing core.db's users table, since SQLite cannot check a foreign key across two separate files.">
+          <defs>
+            <marker id="ar7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+            <marker id="ar7c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--critical)"/></marker>
+          </defs>
+          <line x1="150" y1="150" x2="150" y2="92" stroke="var(--ink-soft)" stroke-width="1.2" marker-end="url(#ar7)"/>
+          <text x="160" y="125" font-family="Courier New, monospace" font-size="10" fill="var(--ink-soft)">template_id, null</text>
+
+          <rect x="50" y="30" width="200" height="62" rx="7" fill="var(--box-hub)" stroke="var(--ink-soft)" stroke-width="1.4"/>
+          <text x="66" y="56" font-family="Courier New, monospace" font-weight="bold" font-size="12" fill="var(--ink)">report_templates</text>
+          <text x="66" y="76" font-size="10" fill="var(--ink-soft)">saved report designs</text>
+
+          <rect x="50" y="150" width="200" height="56" rx="7" fill="var(--box)" stroke="var(--line)" stroke-width="1.2"/>
+          <text x="66" y="172" font-family="Courier New, monospace" font-weight="bold" font-size="11.5" fill="var(--ink)">generated_reports</text>
+          <text x="66" y="190" font-size="9.5" fill="var(--ink-soft)">metadata only, file on disk</text>
+
+          <rect x="60" y="235" width="220" height="56" rx="7" fill="var(--box)" stroke="var(--critical)" stroke-width="1.3"/>
+          <text x="76" y="257" font-family="Courier New, monospace" font-weight="bold" font-size="12" fill="var(--ink)">audit_log</text>
+          <text x="76" y="275" font-size="9.5" fill="var(--ink-soft)">who did what, this business</text>
+
+          <!-- separate tag, well clear of report_templates, so the dashed arrow can't be misread as pointing at it -->
+          <rect x="340" y="30" width="180" height="50" rx="6" fill="var(--critical-soft)" stroke="var(--critical)" stroke-width="1.2" stroke-dasharray="3 3"/>
+          <text x="356" y="50" font-family="Courier New, monospace" font-weight="bold" font-size="11.5" fill="var(--critical)">core.db &middot; users</text>
+          <text x="356" y="67" font-size="9.5" fill="var(--critical)">a different file</text>
+
+          <path d="M 280 263 L 430 263 L 430 82" fill="none" stroke="var(--critical)" stroke-width="1.3" stroke-dasharray="4 4" marker-end="url(#ar7c)"/>
+          <rect x="330" y="180" width="72" height="14" fill="var(--surface)"/>
+          <text x="332" y="191" font-family="Courier New, monospace" font-size="9.5" fill="var(--critical)">user_id</text>
+        </svg>
+        <figcaption>The dashed red arrow crosses a file boundary SQLite can't check &mdash; flagged as open item 5.3 in the approval request.</figcaption>
+      </figure>
+    </div>
+  </div>
+</div>
