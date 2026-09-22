@@ -14,6 +14,14 @@ dart run build_runner build --delete-conflicting-outputs
 flutter run -d chrome      # or: flutter run  (native desktop/mobile)
 ```
 
+## Building a Windows installer
+
+```bash
+flutter build windows --release
+```
+
+produces `build\windows\x64\runner\Release\` — a real installer around that build is `installer\windows.iss` (Inno Setup, free: https://jrsoftware.org/isdl.php). Open it in Inno Setup and click Compile, or from a command line with Inno Setup on PATH: `iscc installer\windows.iss`. Output lands in `installer\output\`. Bump `MyAppVersion` in that script to match `pubspec.yaml`'s `version:` before cutting a release — Inno Setup doesn't read pubspec.yaml itself.
+
 ## Structure
 
 ```

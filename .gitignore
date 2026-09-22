@@ -47,3 +47,6 @@ app.*.map.json
 # Widget Preview related
 .widget_preview/
 ~$*
+
+# Compiled installer output (built from installer/windows.iss, not source)
+/installer/output/
