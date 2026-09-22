@@ -31,6 +31,10 @@ dependencies:
   # IDs for offline-safe primary keys (see docs/database-architecture.md)
   uuid: ^4.4.0
 
+  # Password hashing for real authentication — pure Dart (no native/FFI),
+  # so it works identically on the web build, unlike Argon2 bindings.
+  bcrypt: ^1.1.3
+
   # LAN host/client multi-device mode (Phase 4 — scaffolded, not wired into MVP)
   shelf: ^1.4.1
   shelf_router: ^1.1.4

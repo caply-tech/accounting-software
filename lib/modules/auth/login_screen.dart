@@ -1,3 +1,4 @@
+import 'package:bcrypt/bcrypt.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -39,8 +40,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final username = _usernameCtrl.text.trim().isEmpty ? 'admin' : _usernameCtrl.text.trim();
       final userRow = await (databases.core.select(databases.core.users)..where((u) => u.username.equals(username))).getSingleOrNull();
+      // Same error for "no such user" and "wrong password" — a real login
+      // screen must not reveal which one it was, or it hands an attacker a
+      // free username-enumeration oracle.
+      const invalidCredentialsMessage = 'Incorrect username or password.';
       if (userRow == null) {
-        setState(() => _error = 'No local account with that username.');
+        setState(() => _error = invalidCredentialsMessage);
+        return;
+      }
+      if (!BCrypt.checkpw(_passwordCtrl.text, userRow.passwordHash)) {
+        setState(() => _error = invalidCredentialsMessage);
         return;
       }
 
@@ -115,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: _passwordCtrl,
                   obscureText: _obscure,
                   decoration: InputDecoration(
-                    hintText: 'Enter your password (any value, demo mode)',
+                    hintText: 'Enter your password',
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(_obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined),

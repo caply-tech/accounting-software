@@ -36,11 +36,17 @@ See `docs/database-architecture.md` for the full reasoning. In short:
 - **UUID primary keys**, not autoincrement — leaves room for the optional future sync module without a schema migration.
 - **One `transactions` table** every module posts to, so the Dashboard and Reports never disagree with a module's own numbers.
 
+## Login
+
+Real authentication: passwords are bcrypt-hashed and actually verified (previously the login screen accepted any password for a known username — fixed). Seed accounts' initial passwords are `<username>@2025` (e.g. `admin@2025`, `director@2025` — see the full username list in `lib/shared/db/seed_data.dart`). **Change every one of these before a client uses the app** — there is no in-app password-reset flow yet, so change requests currently mean editing the database directly.
+
 ## What's not finished yet
 
-- SQLCipher encryption-at-rest is specified and reserved for in the schema, not yet wired into the native database connection.
+- SQLCipher encryption-at-rest is specified and reserved for in the schema, not yet wired into the native database connection — every `.db` file is currently plain, unencrypted SQLite.
+- No in-app password change / reset flow yet.
 - Two modules (Accounts & Finance, Asset & Valuation) are built to the app's visual language pending a confirmed mockup.
 - The Calendar screen is a chronological list rather than the mock's month grid (same underlying data).
 - Payroll and Inventory postings don't yet write to the shared `transactions` ledger, so their totals don't yet flow into the Dashboard/Reports.
+- Every business starts pre-loaded with the mock design's demo data (Global Traders Pvt Ltd, sample employees/invoices) rather than a real empty first-run state.
 
-These are called out individually in their module docs under `docs/modules/`.
+These are called out individually in their module docs under `docs/modules/`. None of the above are blockers for reviewing the app — they matter before a real client relies on it for real financial data.

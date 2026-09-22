@@ -1,3 +1,4 @@
+import 'package:bcrypt/bcrypt.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
@@ -5,6 +6,13 @@ import 'business_database.dart';
 import 'core_database.dart';
 
 const _uuid = Uuid();
+
+/// Seed accounts' initial password is `<username>@2025` (e.g. `admin@2025`)
+/// — real bcrypt hashes, not the old `'demo'` placeholder that skipped
+/// verification entirely. Documented here because there is nowhere else a
+/// first-time admin can look it up: change every one of these on first
+/// login, there is no in-app "reset password" flow yet.
+String _defaultPasswordHash(String username) => BCrypt.hashpw('$username@2025', BCrypt.gensalt());
 
 /// Populates a fresh install with the four businesses, users and
 /// representative records shown in the mock design (Main Office / City
@@ -90,7 +98,7 @@ Future<void> seedIfEmpty(CoreDatabase core, BusinessDatabase Function(String) op
         UsersCompanion.insert(
           id: userId,
           username: username,
-          passwordHash: 'demo', // demo-only placeholder; see docs/database-architecture.md
+          passwordHash: _defaultPasswordHash(username),
           fullName: fullName,
           isSuperAdmin: Value(username == 'admin'),
           createdAt: now,
