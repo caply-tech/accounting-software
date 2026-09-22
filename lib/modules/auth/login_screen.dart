@@ -3,7 +3,6 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../shared/db/seed_data.dart';
 import '../../shared/state/app_databases.dart';
 import '../../shared/state/session.dart';
 import '../../shared/theme/app_theme.dart';
@@ -36,7 +35,6 @@ class _LoginScreenState extends State<LoginScreen> {
     });
     try {
       final databases = context.read<AppDatabases>();
-      await seedIfEmpty(databases.core, databases.businessDb);
 
       final username = _usernameCtrl.text.trim().isEmpty ? 'admin' : _usernameCtrl.text.trim();
       final userRow = await (databases.core.select(databases.core.users)..where((u) => u.username.equals(username))).getSingleOrNull();

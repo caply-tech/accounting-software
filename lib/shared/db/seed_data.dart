@@ -20,7 +20,17 @@ String _defaultPasswordHash(String username) => BCrypt.hashpw('$username@2025', 
 /// reviewable immediately instead of opening to an empty shell.
 ///
 /// Idempotent: no-ops if `businesses` already has rows.
-Future<void> seedIfEmpty(CoreDatabase core, BusinessDatabase Function(String) openBusinessDb) async {
+///
+/// [setupMode] is the First-Run Setup Screen's answer — `'this_device_only'`
+/// / `'lan'` / `'cloud_sync'` — written once into `app_settings.setup_mode`.
+/// Defaults to `'lan'` only for callers that bypass that screen (there are
+/// none left in the app itself, but existing tests/tools may call this
+/// directly).
+Future<void> seedIfEmpty(
+  CoreDatabase core,
+  BusinessDatabase Function(String) openBusinessDb, {
+  String setupMode = 'lan',
+}) async {
   final existing = await core.select(core.businesses).get();
   if (existing.isNotEmpty) return;
 
@@ -117,7 +127,7 @@ Future<void> seedIfEmpty(CoreDatabase core, BusinessDatabase Function(String) op
     }
   });
 
-  await core.into(core.appSettings).insert(const AppSettingsCompanion(key: Value('setup_mode'), value: Value('lan')));
+  await core.into(core.appSettings).insert(AppSettingsCompanion.insert(key: 'setup_mode', value: setupMode));
 
   // Representative data for Main Office — the business the mock design's
   // Dashboard / Payroll / Inventory / Reports screens show numbers for.
